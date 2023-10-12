@@ -1,0 +1,20 @@
+linters:
+  enable-all: true
+  disable:
+    # Maybe re-enable in the future?
+    - 'forcetypeassert'
+    - 'nolintlint'
+    # depguard seems _very_ broken right now :(
+    - 'depguard'
+    # Deprecated
+    - 'varcheck'
+    - 'maligned'
+    - 'interfacer'
+    - 'golint'
+    - 'scopelint'
+    - 'ifshort'
+    - 'deadcode'
+    - 'structcheck'
+    - 'nosnakecase'
+    - 'exhaustivestruct'
+    - 'exhaustruct'

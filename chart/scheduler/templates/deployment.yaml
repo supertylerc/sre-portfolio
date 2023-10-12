@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "scheduler.fullname" . }}
+  labels:
+    {{- include "scheduler.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "scheduler.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "scheduler.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "scheduler.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: "REDIS_HOST"
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_HOST
+                  name: {{ .Release.Name }}-env
+            - name: "REDIS_PORT"
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_PORT
+                  name: {{ .Release.Name }}-env
+            - name: "REDIS_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_PASSWORD
+                  name: {{ .Release.Name }}-env
+            - name: "REDIS_LEADER_KEY"
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_LEADER_KEY
+                  name: {{ .Release.Name }}-env
+            - name: "APP_ENV"
+              valueFrom:
+                secretKeyRef:
+                  key: APP_ENV
+                  name: {{ .Release.Name }}-env
+            - name: "METRICS_PORT"
+              valueFrom:
+                secretKeyRef:
+                  key: METRICS_PORT
+                  name: {{ .Release.Name }}-env
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.metricsPort }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

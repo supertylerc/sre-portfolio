@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "scheduler.fullname" . }}
+  labels:
+    {{- include "scheduler.labels" . | nindent 4 }}
+spec:
+  endpoints:
+  - interval: 30s
+    port: metrics
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: scheduler
+      app.kubernetes.io/name: scheduler
