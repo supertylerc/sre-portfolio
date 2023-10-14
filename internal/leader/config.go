@@ -1,4 +1,4 @@
-package internal
+package leader
 
 import "github.com/spf13/viper"
 

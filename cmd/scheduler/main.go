@@ -7,15 +7,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/supertylerc/scheduler/internal"
+	internal_leader "github.com/supertylerc/scheduler/internal/leader"
 	"github.com/supertylerc/scheduler/pkg/leader"
 )
 
 func main() {
-	internal.ViperConfig()
-	internal.LogConfig()
+	internal_leader.ViperConfig()
+	internal_leader.LogConfig()
 
-	ldr, err := internal.CreateRedisLeader()
+	ldr, err := internal_leader.CreateRedisLeader()
 	if err != nil {
 		slog.Error("Unable to create leader", slog.String("err", err.Error()))
 		os.Exit(1)
@@ -25,7 +25,7 @@ func main() {
 }
 
 func run(ldr leader.Leader) int {
-	go internal.Metrics()
+	go internal_leader.Metrics()
 
 	ticker := time.NewTicker(leader.CheckInterval * time.Millisecond)
 	done := make(chan struct{})

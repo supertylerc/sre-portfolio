@@ -1,4 +1,4 @@
-package internal
+package leader
 
 import (
 	"errors"
@@ -10,6 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sagikazarmark/slog-shim"
 	"github.com/spf13/viper"
+
 	"github.com/supertylerc/scheduler/pkg/leader"
 )
 
