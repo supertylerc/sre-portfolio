@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	"github.com/spf13/viper"
-
 	"github.com/supertylerc/scheduler/pkg/leader"
 )
 
