@@ -62,6 +62,7 @@ type ClusterOptions struct {
 
 	OnConnect func(ctx context.Context, cn *Conn) error
 
+	Protocol int
 	Username string
 	Password string
 
@@ -82,7 +83,8 @@ type ClusterOptions struct {
 	ConnMaxIdleTime time.Duration
 	ConnMaxLifetime time.Duration
 
-	TLSConfig *tls.Config
+	TLSConfig        *tls.Config
+	DisableIndentity bool // Disable set-lib on connect. Default is false.
 }
 
 func (opt *ClusterOptions) init() {
@@ -216,6 +218,7 @@ func setupClusterConn(u *url.URL, host string, o *ClusterOptions) (*ClusterOptio
 func setupClusterQueryParams(u *url.URL, o *ClusterOptions) (*ClusterOptions, error) {
 	q := queryOptions{q: u.Query()}
 
+	o.Protocol = q.int("protocol")
 	o.ClientName = q.string("client_name")
 	o.MaxRedirects = q.int("max_redirects")
 	o.ReadOnly = q.bool("read_only")
@@ -263,6 +266,7 @@ func (opt *ClusterOptions) clientOptions() *Options {
 		Dialer:     opt.Dialer,
 		OnConnect:  opt.OnConnect,
 
+		Protocol: opt.Protocol,
 		Username: opt.Username,
 		Password: opt.Password,
 
@@ -274,15 +278,15 @@ func (opt *ClusterOptions) clientOptions() *Options {
 		ReadTimeout:  opt.ReadTimeout,
 		WriteTimeout: opt.WriteTimeout,
 
-		PoolFIFO:        opt.PoolFIFO,
-		PoolSize:        opt.PoolSize,
-		PoolTimeout:     opt.PoolTimeout,
-		MinIdleConns:    opt.MinIdleConns,
-		MaxIdleConns:    opt.MaxIdleConns,
-		ConnMaxIdleTime: opt.ConnMaxIdleTime,
-		ConnMaxLifetime: opt.ConnMaxLifetime,
-
-		TLSConfig: opt.TLSConfig,
+		PoolFIFO:         opt.PoolFIFO,
+		PoolSize:         opt.PoolSize,
+		PoolTimeout:      opt.PoolTimeout,
+		MinIdleConns:     opt.MinIdleConns,
+		MaxIdleConns:     opt.MaxIdleConns,
+		ConnMaxIdleTime:  opt.ConnMaxIdleTime,
+		ConnMaxLifetime:  opt.ConnMaxLifetime,
+		DisableIndentity: opt.DisableIndentity,
+		TLSConfig:        opt.TLSConfig,
 		// If ClusterSlots is populated, then we probably have an artificial
 		// cluster whose nodes are not in clustering mode (otherwise there isn't
 		// much use for ClusterSlots config).  This means we cannot execute the
