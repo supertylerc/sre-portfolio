@@ -1,12 +1,11 @@
 module github.com/supertylerc/scheduler
 
-go 1.20
+go 1.21
 
 require (
 	github.com/google/uuid v1.3.1
 	github.com/prometheus/client_golang v1.17.0
-	github.com/redis/go-redis/v9 v9.0.2
-	github.com/sagikazarmark/slog-shim v0.1.0
+	github.com/redis/go-redis/v9 v9.2.1
 	github.com/spf13/viper v1.17.0
 )
 
@@ -25,6 +24,7 @@ require (
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.11.1 // indirect
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
+	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.10.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
