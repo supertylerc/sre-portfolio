@@ -2,8 +2,8 @@ package leader
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/sagikazarmark/slog-shim"
 	"github.com/spf13/viper"
 	"github.com/supertylerc/scheduler/pkg/leader"
 )
