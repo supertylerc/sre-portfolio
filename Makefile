@@ -1,9 +1,9 @@
 BINARY_NAME=scheduler
 
 build:
-	GOARCH=amd64 GOOS=darwin go build -o ${BINARY_NAME}-darwin main.go
-	GOARCH=amd64 GOOS=linux go build -o ${BINARY_NAME}-linux main.go
-	GOARCH=amd64 GOOS=windows go build -o ${BINARY_NAME}-windows main.go
+	CGO_ENABLED=0 GOFLAGS=-mod=vendor GOARCH=amd64 GOOS=darwin go build -trimpath -ldflags="-w -s" -o ${BINARY_NAME}-darwin cmd/scheduler/main.go
+	CGO_ENABLED=0 GOFLAGS=-mod=vendor GOARCH=amd64 GOOS=linux go build -trimpath -ldflags="-w -s" -o ${BINARY_NAME}-linux cmd/scheduler/main.go
+	CGO_ENABLED=0 GOFLAGS=-mod=vendor GOARCH=amd64 GOOS=windows go build -trimpath -ldflags="-w -s" -o ${BINARY_NAME}-windows cmd/scheduler/main.go
 
 run: build
 	cp ${BINARY_NAME}-linux ${BINARY_NAME}
