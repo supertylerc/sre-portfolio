@@ -1,9 +1,9 @@
 package leader
 
 import (
+	"log/slog"
 	"os"
 
-	"github.com/sagikazarmark/slog-shim"
 	"github.com/spf13/viper"
 )
 
