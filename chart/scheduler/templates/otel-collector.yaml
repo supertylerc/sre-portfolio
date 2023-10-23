@@ -1,4 +1,4 @@
-{{- if .values.otel.enabled }}
+{{- if .Values.otel.enabled }}
 apiVersion: opentelemetry.io/v1alpha1
 kind: OpenTelemetryCollector
 metadata:
