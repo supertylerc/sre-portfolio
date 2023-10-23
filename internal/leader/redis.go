@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// nolint: varnamelen
 func CreateRedisClient(ctx context.Context, db int) (*redis.Client, error) {
 	redisHost := viper.Get("REDIS_HOST").(string)
 	redisPort := viper.Get("REDIS_PORT").(string)
@@ -28,6 +29,7 @@ func CreateRedisClient(ctx context.Context, db int) (*redis.Client, error) {
 		Password: redisPassword,
 		DB:       db,
 	})
+
 	if err := client.Ping(ctx).Err(); err != nil {
 		return nil, fmt.Errorf("unable to ping Redis: %w", err)
 	}
