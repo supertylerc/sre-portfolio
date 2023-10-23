@@ -1,40 +1,44 @@
 package leader
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
-	"github.com/supertylerc/scheduler/pkg/leader"
 )
 
-func CreateRedisLeader() (*leader.RedisLeader, error) {
+// nolint: varnamelen
+func CreateRedisClient(ctx context.Context, db int) (*redis.Client, error) {
 	redisHost := viper.Get("REDIS_HOST").(string)
 	redisPort := viper.Get("REDIS_PORT").(string)
 	redisPassword := viper.Get("REDIS_PASSWORD").(string)
-	redisLeaderKey := viper.Get("REDIS_LEADER_KEY").(string)
+
 	slog.Debug(
-		"Creating leader",
+		"Creating client",
 		slog.String("redisHost", redisHost),
 		slog.String("redisPort", redisPort),
 		slog.String("redisPassword", redisPassword),
-		slog.String("redisLeaderKey", redisLeaderKey),
+		slog.Int("redisDB", db),
 	)
 
-	ldr, err := leader.NewRedisLeader(
-		fmt.Sprintf("%s:%s", redisHost, redisPort),
-		redisPassword,
-		redisLeaderKey,
-	)
-	if err != nil {
-		return &leader.RedisLeader{}, fmt.Errorf("error creating a Redis Leader: %w", err)
+	redisAddress := fmt.Sprintf("%s:%s", redisHost, redisPort)
+	client := redis.NewClient(&redis.Options{
+		Addr:     redisAddress,
+		Password: redisPassword,
+		DB:       db,
+	})
+
+	if err := client.Ping(ctx).Err(); err != nil {
+		return nil, fmt.Errorf("unable to ping Redis: %w", err)
 	}
 
 	slog.Info(
-		"Created new leader",
-		slog.String("uuid", ldr.UUID.String()),
-		slog.String("key", ldr.Key),
+		"Created new redis client",
+		slog.String("address", redisAddress),
+		slog.Int("db", db),
 	)
 
-	return ldr, nil
+	return client, nil
 }

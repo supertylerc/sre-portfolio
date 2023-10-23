@@ -27,19 +27,10 @@ type RedisLeader struct {
 	Key    string
 }
 
-func NewRedisLeader(address, password, key string) (*RedisLeader, error) {
+func NewRedisLeader(client *redis.Client, key string) (*RedisLeader, error) {
 	ldrUUID, err := uuid.NewUUID()
 	if err != nil {
 		return nil, fmt.Errorf("error creating UUID: %w", err)
-	}
-
-	client := redis.NewClient(&redis.Options{
-		Addr:     address,
-		Password: password,
-		DB:       0,
-	})
-	if err = client.Ping(Ctx).Err(); err != nil {
-		return nil, fmt.Errorf("unable to ping Redis: %w", err)
 	}
 
 	return &RedisLeader{
