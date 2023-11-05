@@ -60,4 +60,17 @@ jobs:
       - name: check test coverage
         uses: vladopajic/go-test-coverage@v2.8.0
         with:
-          config: ./.testcoverage.yml
+         config: ./.testcoverage.yml
+  coverage-report:
+    name: Test Coveralls
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Coveralls test coverage report
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.x'
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
