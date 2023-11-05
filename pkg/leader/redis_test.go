@@ -18,7 +18,7 @@ func TestNewRedisLeader(t *testing.T) {
 		Addr: mr.Addr(),
 	})
 
-	key := "leader"
+	key := "bGVhZGVyOnV1aWQ="
 	ldr, err := NewRedisLeader(mrClient, key)
 	if err != nil {
 		fmt.Println("Failed to create leader")
