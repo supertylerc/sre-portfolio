@@ -70,6 +70,7 @@ jobs:
       - name: Coveralls test coverage report
         uses: actions/setup-go@v4
         with:
+          file: ./cover.out
           go-version: '1.21.x'
 
       - name: Coveralls
