@@ -14,14 +14,12 @@ func TestNewRedisLeader(t *testing.T) {
 	// start miniredis instance
 	mrInstance := miniredis.RunT(t)
 
-	key := "bGVhZGVyOnV1aWQ="
-
 	// Create redis client
 	mrClient := redis.NewClient(&redis.Options{
 		Addr: mrInstance.Addr(),
 	})
 
-	ldr, err := leader.NewRedisLeader(mrClient, key)
+	ldr, err := leader.NewRedisLeader(mrClient, "leader:uuid")
 	if err != nil {
 		slog.Error("error creating UUID: %w", err)
 	}
