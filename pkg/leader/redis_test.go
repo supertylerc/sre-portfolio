@@ -12,7 +12,6 @@ func TestNewRedisLeader(t *testing.T) {
 
 	// start miniredis instance
 	mr := miniredis.RunT(t)
-	defer mr.Close()
 
 	// Create redis client
 	mrClient := redis.NewClient(&redis.Options{
