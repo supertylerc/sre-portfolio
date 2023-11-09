@@ -36,17 +36,17 @@ func TestNewRedisLeader(t *testing.T) {
 
 	isCur, err := ldr.IsCurrentLeader()
 	if err != nil {
-		slog.Info("IsCurrentLeader failed", "message", err)
+		slog.Info("IsCurrentLeader() failed", "message", err)
 	}
 
-	slog.Info("IsCurrentLeader()", "Result is ", isCur)
+	slog.Info("IsCurrentLeader()", "Result is", isCur)
 
 	readRes, err := ldr.ReadLeader()
 	if err != nil {
 		slog.Info("ReadLeader() failed", "message", err)
 	}
 
-	slog.Info("ReadLeader() failed", "UUID", readRes)
+	slog.Info("ReadLeader()", "UUID", readRes)
 
 	miniInstance.Close()
 }
