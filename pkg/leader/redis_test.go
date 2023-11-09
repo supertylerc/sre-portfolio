@@ -11,48 +11,42 @@ import (
 
 func TestNewRedisLeader(t *testing.T) {
 	t.Parallel()
-	// start 3 miniredis instances
-	mr1 := miniredis.RunT(t)
-	mr2 := miniredis.RunT(t)
-	mr3 := miniredis.RunT(t)
+	// start miniredis instance
+	miniInstance := miniredis.RunT(t)
 
-	// Create redis client
-	mrClient1 := redis.NewClient(&redis.Options{
-		Addr:       mr1.Addr(),
-		ClientName: "Client 1",
+	// Create new redis client context
+	mrClient := redis.NewClient(&redis.Options{
+		Addr:       miniInstance.Addr(),
+		ClientName: "client1",
 	})
 
-	mrClient2 := redis.NewClient(&redis.Options{
-		Addr:       mr2.Addr(),
-		ClientName: "Client 2",
-	})
-
-	mrClient3 := redis.NewClient(&redis.Options{
-		Addr:       mr3.Addr(),
-		ClientName: "Client 3",
-	})
-
-	ldr1, err := leader.NewRedisLeader(mrClient1, "leader:uuid")
+	ldr, err := leader.NewRedisLeader(mrClient, "leader:uuid")
 	if err != nil {
 		slog.Error("error creating UUID: %w", err)
 	}
 
-	ldr2, err := leader.NewRedisLeader(mrClient2, "leader:uuid")
+	slog.Info("New Leader", "contains", ldr)
+
+	// methods
+	err = ldr.WriteLeader()
+
 	if err != nil {
-		slog.Error("Error creating UUID: %w", err)
+		slog.Error("WriteLeader() failed", "message", err)
 	}
 
-	ldr3, err := leader.NewRedisLeader(mrClient3, "leader:uuid")
+	isCur, err := ldr.IsCurrentLeader()
 	if err != nil {
-		slog.Error("Error creating UUID: %w", err)
+		slog.Info("IsCurrentLeader failed", "message", err)
 	}
 
-	slog.Info("New Leader", "contains", ldr1)
-	slog.Info("New Leader", "contains", ldr2)
-	slog.Info("New Leader", "contains", ldr3)
+	slog.Info("IsCurrentLeader()", "Result is ", isCur)
 
-	ldr1.WriteLeader()
-	ldr2.WriteLeader()
-	ldr3.WriteLeader()
+	readRes, err := ldr.ReadLeader()
+	if err != nil {
+		slog.Info("ReadLeader() failed", "message", err)
+	}
 
+	slog.Info("ReadLeader() failed", "UUID", readRes)
+
+	miniInstance.Close()
 }
