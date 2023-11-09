@@ -14,7 +14,7 @@ func TestNewRedisLeader(t *testing.T) {
 	// start miniredis instance
 	miniInstance := miniredis.RunT(t)
 
-	// Create new redis client context
+	// Create new redis client
 	mrClient := redis.NewClient(&redis.Options{
 		Addr:       miniInstance.Addr(),
 		ClientName: "client1",
