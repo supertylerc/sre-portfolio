@@ -3,6 +3,7 @@ package leader_test
 import (
 	"log/slog"
 	"testing"
+	"time"
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
@@ -11,15 +12,25 @@ import (
 
 func TestNewRedisLeader(t *testing.T) {
 	t.Parallel()
-	// start miniredis instance
+	ctx := leader.Ctx
+	// Run miniredis server
 	miniInstance := miniredis.RunT(t)
 
-	// Create new redis client
+	// Set up miniredis client no leader
 	mrClient := redis.NewClient(&redis.Options{
 		Addr:       miniInstance.Addr(),
 		ClientName: "client1",
 	})
 
+	// Set key with 100ms TTL
+
+	err := mrClient.Set(ctx, "key", "", time.Duration(leader.LeaderTTL)).Err()
+	if err != nil {
+		panic(err)
+	}
+	time.Sleep(leader.LeaderTTL)
+
+	// Set up leader client on mrClient
 	ldr, err := leader.NewRedisLeader(mrClient, "leader:uuid")
 	if err != nil {
 		slog.Error("error creating UUID: %w", err)
@@ -27,26 +38,17 @@ func TestNewRedisLeader(t *testing.T) {
 
 	slog.Info("New Leader", "contains", ldr)
 
-	// methods
 	err = ldr.WriteLeader()
-
 	if err != nil {
-		slog.Error("WriteLeader() failed", "message", err)
+		slog.Error("WriteLeader() failed", err)
 	}
 
-	isCur, err := ldr.IsCurrentLeader()
+	isLdr, err := ldr.IsCurrentLeader()
 	if err != nil {
-		slog.Info("IsCurrentLeader() failed", "message", err)
+		slog.Error("Error checking current leader", err)
 	}
 
-	slog.Info("IsCurrentLeader()", "Result is", isCur)
-
-	readRes, err := ldr.ReadLeader()
-	if err != nil {
-		slog.Info("ReadLeader() failed", "message", err)
-	}
-
-	slog.Info("ReadLeader()", "UUID", readRes)
+	slog.Info("Current Leader", "contains", isLdr)
 
 	miniInstance.Close()
 }
