@@ -12,7 +12,9 @@ import (
 
 func TestNewRedisLeader(t *testing.T) {
 	t.Parallel()
+
 	ctx := leader.Ctx
+
 	// Run miniredis server
 	miniInstance := miniredis.RunT(t)
 
@@ -24,10 +26,11 @@ func TestNewRedisLeader(t *testing.T) {
 
 	// Set key with 100ms TTL
 
-	err := mrClient.Set(ctx, "key", "", time.Duration(leader.LeaderTTL)).Err()
+	err := mrClient.Set(ctx, "key", "value", 100*time.Millisecond).Err()
 	if err != nil {
 		panic(err)
 	}
+
 	time.Sleep(leader.LeaderTTL)
 
 	// Set up leader client on mrClient
