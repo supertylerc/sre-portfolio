@@ -17,6 +17,7 @@ func TestNewRedisLeader(t *testing.T) {
 
 	// Run miniredis server
 	miniInstance := miniredis.RunT(t)
+	defer miniInstance.Close()
 
 	// Set up miniredis client no leader
 	mrClient := redis.NewClient(&redis.Options{
@@ -25,7 +26,6 @@ func TestNewRedisLeader(t *testing.T) {
 	})
 
 	// Set key with 100ms TTL
-
 	err := mrClient.Set(ctx, "key", "value", 100*time.Millisecond).Err()
 	if err != nil {
 		panic(err)
@@ -52,6 +52,4 @@ func TestNewRedisLeader(t *testing.T) {
 	}
 
 	slog.Info("Current Leader", "contains", isLdr)
-
-	miniInstance.Close()
 }
