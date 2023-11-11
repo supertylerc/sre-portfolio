@@ -58,11 +58,12 @@ func TestNewRedisLeader(t *testing.T) {
 
 	if isLdr == true {
 		slog.Info("Flushing all keys...", "", mrClient)
+
 		miniServer.FlushAll()
+
 		_, err := ldr.ReadLeader()
 		if err != nil {
 			t.Fail()
 		}
 	}
-
 }
