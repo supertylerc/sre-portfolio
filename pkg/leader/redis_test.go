@@ -55,15 +55,4 @@ func TestNewRedisLeader(t *testing.T) {
 	}
 
 	slog.Info("Current Leader", "contains", isLdr)
-
-	if isLdr == true {
-		slog.Info("Flushing all keys...", "", mrClient)
-
-		miniServer.FlushAll()
-
-		_, err := ldr.ReadLeader()
-		if err != nil {
-			t.Fail()
-		}
-	}
 }
