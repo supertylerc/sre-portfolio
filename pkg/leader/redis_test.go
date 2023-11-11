@@ -20,38 +20,36 @@ func TestNewRedisLeader(t *testing.T) {
 	defer miniServer.Close()
 
 	// Set up miniredis client no leader
-	mrClient := redis.NewClient(&redis.Options{
+	miniClient := redis.NewClient(&redis.Options{
 		Addr:       miniServer.Addr(),
-		ClientName: "client1",
+		ClientName: "testclient1",
 	})
 
 	// Set key with 100ms TTL
-	err := mrClient.Set(ctx, "key", "value", 100*time.Millisecond).Err()
+	err := miniClient.Set(ctx, "key", "value", 100*time.Millisecond).Err()
 	if err != nil {
-		panic(err)
+		t.Errorf("Failed to set initial key/value")
 	}
 
 	time.Sleep(leader.LeaderTTL)
 
-	// Set up leader client on mrClient
-	ldr, err := leader.NewRedisLeader(mrClient, "leader:uuid")
+	// Set up leader client on miniClient with RedisLeader Options{}
+
+	ldr, err := leader.NewRedisLeader(miniClient, "leader:uuid")
 	if err != nil {
-		slog.Error("error creating UUID: %w", err)
-		t.Fail()
+		t.Errorf("NewRedisLeader() failed %v", err)
 	}
 
-	slog.Info("New Leader", "contains", ldr)
+	slog.Info("New Leader", "contains", ldr.UUID)
 
 	err = ldr.WriteLeader()
 	if err != nil {
-		slog.Error("WriteLeader() failed", err)
-		t.Fail()
+		t.Errorf("WriteLeader() failed %v", err)
 	}
 
 	isLdr, err := ldr.IsCurrentLeader()
-	if err != nil {
-		slog.Error("Error checking current leader", err)
-		t.Fail()
+	if err != nil || isLdr == false {
+		t.Errorf("Call to IsCurrentLeader() failed %v", err)
 	}
 
 	slog.Info("Current Leader", "contains", isLdr)
