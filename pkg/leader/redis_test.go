@@ -16,12 +16,12 @@ func TestNewRedisLeader(t *testing.T) {
 	ctx := leader.Ctx
 
 	// Run miniredis server
-	miniInstance := miniredis.RunT(t)
-	defer miniInstance.Close()
+	miniServer := miniredis.RunT(t)
+	defer miniServer.Close()
 
 	// Set up miniredis client no leader
 	mrClient := redis.NewClient(&redis.Options{
-		Addr:       miniInstance.Addr(),
+		Addr:       miniServer.Addr(),
 		ClientName: "client1",
 	})
 
@@ -37,6 +37,7 @@ func TestNewRedisLeader(t *testing.T) {
 	ldr, err := leader.NewRedisLeader(mrClient, "leader:uuid")
 	if err != nil {
 		slog.Error("error creating UUID: %w", err)
+		t.Fail()
 	}
 
 	slog.Info("New Leader", "contains", ldr)
@@ -44,12 +45,24 @@ func TestNewRedisLeader(t *testing.T) {
 	err = ldr.WriteLeader()
 	if err != nil {
 		slog.Error("WriteLeader() failed", err)
+		t.Fail()
 	}
 
 	isLdr, err := ldr.IsCurrentLeader()
 	if err != nil {
 		slog.Error("Error checking current leader", err)
+		t.Fail()
 	}
 
 	slog.Info("Current Leader", "contains", isLdr)
+
+	if isLdr == true {
+		slog.Info("Flushing all keys...", "", mrClient)
+		miniServer.FlushAll()
+		_, err := ldr.ReadLeader()
+		if err != nil {
+			t.Fail()
+		}
+	}
+
 }
