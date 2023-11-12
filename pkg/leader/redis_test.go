@@ -52,5 +52,5 @@ func TestNewRedisLeader(t *testing.T) {
 		t.Errorf("Call to IsCurrentLeader() failed %v", err)
 	}
 
-	slog.Info("Current Leader", "contains", isLdr)
+	slog.Info("Current Leader", "status", isLdr)
 }
