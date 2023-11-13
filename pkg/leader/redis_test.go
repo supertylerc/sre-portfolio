@@ -26,7 +26,7 @@ func TestNewRedisLeader(t *testing.T) {
 	})
 
 	// Set key with 100ms TTL
-	err := miniClient.Set(ctx, "", "", 100*time.Millisecond).Err()
+	err := miniClient.Set(ctx, "key", "key", 100*time.Millisecond).Err()
 	if err != nil {
 		t.Errorf("Failed to set initial key/value")
 	}
