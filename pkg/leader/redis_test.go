@@ -3,7 +3,6 @@ package leader_test
 import (
 	"log/slog"
 	"testing"
-	"time"
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
@@ -26,12 +25,12 @@ func TestNewRedisLeader(t *testing.T) {
 	})
 
 	// Set key with 100ms TTL
-	err := miniClient.Set(ctx, "leader:uuid", "key", 100*time.Millisecond).Err()
+	err := miniClient.Set(ctx, "leader:uuid", "key", leader.LeaderTTL).Err()
 	if err != nil {
 		t.Errorf("Failed to set initial key/value")
 	}
 
-	time.Sleep(leader.LeaderTTL)
+	miniServer.FastForward(leader.LeaderTTL)
 
 	// Set up leader client on miniClient with RedisLeader Options{}
 
