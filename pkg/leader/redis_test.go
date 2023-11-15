@@ -11,18 +11,46 @@ import (
 
 func TestNewRedisLeader(t *testing.T) {
 	t.Parallel()
-	// start miniredis instance
-	mrInstance := miniredis.RunT(t)
 
-	// Create redis client
-	mrClient := redis.NewClient(&redis.Options{
-		Addr: mrInstance.Addr(),
+	ctx := leader.Ctx
+
+	// Run miniredis server
+	miniServer := miniredis.RunT(t)
+	defer miniServer.Close()
+
+	// Set up miniredis client no leader
+	miniClient := redis.NewClient(&redis.Options{
+		Addr:       miniServer.Addr(),
+		ClientName: "testclient1",
 	})
 
-	ldr, err := leader.NewRedisLeader(mrClient, "leader:uuid")
+	// Set key with 100ms TTL
+	err := miniClient.Set(ctx, "leader:uuid", "key", leader.LeaderTTL).Err()
 	if err != nil {
-		slog.Error("error creating UUID: %w", err)
+		t.Errorf("Failed to set initial key/value")
 	}
 
-	slog.Debug("New Leader", "contains", ldr)
+	miniServer.FastForward(leader.LeaderTTL)
+
+	// Set up leader client on miniClient with RedisLeader Options{}
+
+	ldr, err := leader.NewRedisLeader(miniClient, "leader:uuid")
+	if err != nil {
+		t.Errorf("NewRedisLeader() failed %v", err)
+	}
+
+	slog.Info("New Leader", "contains", ldr.UUID)
+
+	err = ldr.WriteLeader()
+	if err != nil {
+		t.Errorf("WriteLeader() failed %v", err)
+	}
+
+	isLdr, err := ldr.IsCurrentLeader()
+	if err != nil || isLdr == false {
+		t.Errorf("Call to IsCurrentLeader() failed %v", err)
+	}
+
+	slog.Info("Current Leader", "status", isLdr)
+	slog.Info("Current Leader", "UUID", ldr.UUID)
 }
