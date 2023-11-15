@@ -52,4 +52,5 @@ func TestNewRedisLeader(t *testing.T) {
 	}
 
 	slog.Info("Current Leader", "status", isLdr)
+	slog.Info("Current Leader", "UUID", ldr.UUID)
 }
