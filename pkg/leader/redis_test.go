@@ -19,6 +19,8 @@ func TestNewRedisLeader(t *testing.T) {
 		key         string
 		wantLeader  *leader.RedisLeader
 		wantIsLdr   error
+		isLdr       bool
+		ldrUUID     string
 	}
 
 	testCases := []TestCase{
@@ -46,11 +48,12 @@ func TestNewRedisLeader(t *testing.T) {
 		ClientName: "testclient1",
 	})
 
+	_ = miniClient.Set(ctx, "leader:uuid", "key", leader.LeaderTTL)
+
 	for _, testCase := range testCases {
 		t.Run(testCase.description, func(t *testing.T) {
-			myClient := miniClient.Set(ctx, "leader:uuid", "key", leader.LeaderTTL)
 			ldr, _ := leader.NewRedisLeader(miniClient, testCase.key)
-			assert.Equal(t, myClient, ldr.Key)
+			assert.Equal(t, ldr, ldr.Key)
 		})
 	}
 }
