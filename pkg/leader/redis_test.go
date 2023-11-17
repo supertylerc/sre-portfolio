@@ -53,33 +53,4 @@ func TestNewRedisLeader(t *testing.T) {
 			assert.Equal(t, myClient, ldr.Key)
 		})
 	}
-
-	// err := miniClient.Set(ctx, "leader:uuid", "key", leader.LeaderTTL).Err()
-	// if err != nil {
-	//	t.Errorf("Failed to set initial key/value")
-	// }
-
-	// miniServer.FastForward(leader.LeaderTTL)
-
-	// Set up leader client on miniClient with RedisLeader Options{}
-
-	// ldr, err := leader.NewRedisLeader(miniClient, "leader:uuid")
-	//if err != nil {
-	//	t.Errorf("NewRedisLeader() failed %v", err)
-	// }
-
-	// slog.Info("New Leader", "contains", ldr.UUID)
-
-	// err = ldr.WriteLeader()
-	// if err != nil {
-	//	t.Errorf("WriteLeader() failed %v", err)
-	// }
-
-	// isLdr, err := ldr.IsCurrentLeader()
-	// if err != nil || isLdr == false {
-	//	t.Errorf("Call to IsCurrentLeader() failed %v", err)
-	// }
-
-	// slog.Info("Current Leader", "status", isLdr)
-	// slog.Info("Current Leader", "UUID", ldr.UUID)
 }
