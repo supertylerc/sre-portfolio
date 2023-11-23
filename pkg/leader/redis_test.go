@@ -9,11 +9,10 @@ import (
 )
 
 func TestNewRedisLeader(t *testing.T) {
+	t.Parallel()
 
 	miniServer := miniredis.RunT(t)
-	defer miniServer.Close()
-
-	// ctx := leader.Ctx
+	t.Cleanup(func() { miniServer.Close() })
 
 	tests := []struct {
 		name        string
@@ -45,14 +44,16 @@ func TestNewRedisLeader(t *testing.T) {
 	}
 
 	// miniServer.FastForward(leader.LeaderTTL)
-	t.Parallel()
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			ldr, _ := leader.NewRedisLeader(tc.miniClient, tc.input)
+
+	for _, testcase := range tests {
+		testcase := testcase
+		t.Run(testcase.name, func(t *testing.T) {
+			t.Parallel()
+			ldr, _ := leader.NewRedisLeader(testcase.miniClient, testcase.input)
 			result, _ := ldr.IsCurrentLeader()
 
-			if result != tc.ldrCheck {
-				t.Errorf("NewRedisLeader() %v = %v, want %v", tc.name, ldr, tc.want)
+			if result != testcase.ldrCheck {
+				t.Errorf("NewRedisLeader() %v = %v, want %v", testcase.name, ldr, testcase.want)
 			}
 		})
 	}
