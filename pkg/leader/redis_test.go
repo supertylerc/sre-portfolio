@@ -13,8 +13,7 @@ func TestNewRedisLeader(t *testing.T) {
 	miniServer := miniredis.RunT(t)
 	defer miniServer.Close()
 
-	t.Parallel()
-	//ctx := leader.Ctx
+	// ctx := leader.Ctx
 
 	tests := []struct {
 		name        string
@@ -23,6 +22,7 @@ func TestNewRedisLeader(t *testing.T) {
 		miniClient  *redis.Client
 		miniOptions *redis.Options
 		leader      *leader.RedisLeader
+		ldrCheck    bool
 	}{
 		{
 			name:  "Become the leader",
@@ -33,16 +33,26 @@ func TestNewRedisLeader(t *testing.T) {
 				ClientName: "testclient1",
 			}),
 		},
+		{
+			name:  "Become non-leader",
+			input: "",
+			want:  "Becoming the leader.",
+			miniClient: redis.NewClient(&redis.Options{
+				Addr:       miniServer.Addr(),
+				ClientName: "testclient1",
+			}),
+		},
 	}
 
 	// miniServer.FastForward(leader.LeaderTTL)
-
+	t.Parallel()
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got, _ := leader.NewRedisLeader(tc.miniClient, tc.input)
+			ldr, _ := leader.NewRedisLeader(tc.miniClient, tc.input)
+			result, _ := ldr.IsCurrentLeader()
 
-			if got != tc.leader {
-				t.Errorf("NewRedisLeader() = %v, want %v", got, tc.want)
+			if result != tc.ldrCheck {
+				t.Errorf("NewRedisLeader() %v = %v, want %v", tc.name, ldr, tc.want)
 			}
 		})
 	}
