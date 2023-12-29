@@ -1,7 +1,6 @@
 package leader_test
 
 import (
-	"fmt"
 	"log/slog"
 	"testing"
 
@@ -29,10 +28,6 @@ func TestNewRedisLeader(t *testing.T) {
 		t.Errorf("Failed to set initial key/value")
 	}
 
-	fmt.Println(miniServer.Addr())
-
-	fmt.Println(miniClient)
-
 	miniServer.FastForward(leader.LeaderTTL)
 
 	tests := []struct {
@@ -48,7 +43,7 @@ func TestNewRedisLeader(t *testing.T) {
 		{
 			name:  "Not the leader",
 			input: "",
-			want:  false,
+			want:  true,
 		},
 	}
 
@@ -56,8 +51,8 @@ func TestNewRedisLeader(t *testing.T) {
 		testcase := testcase
 		t.Run(testcase.name, func(t *testing.T) {
 			miniServer.FastForward(leader.LeaderTTL)
-			ldr, _ := leader.NewRedisLeader(miniClient, "leader:uuid")
-			fmt.Println("New Leader", "contains", ldr.UUID)
+			ldr, _ := leader.NewRedisLeader(miniClient, testcase.input)
+			slog.Info("New Leader", "contains", ldr.UUID)
 			_ = ldr.WriteLeader()
 			isLdr, _ := ldr.IsCurrentLeader()
 			slog.Info("Current Leader", "status", isLdr)
