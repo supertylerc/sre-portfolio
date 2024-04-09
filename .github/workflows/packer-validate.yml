@@ -24,4 +24,4 @@ jobs:
         run: "packer init ./packer"
       - name: Run `packer validate`
         id: validate
-        run: "packer validate ./packer"
+        run: "packer validate -var 'api_token=xyz' ./packer"
