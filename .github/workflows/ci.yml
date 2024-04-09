@@ -7,6 +7,8 @@ on:
       - master
       - main
   pull_request:
+    paths:
+      - scheduler/**
 
 permissions:
   contents: read
