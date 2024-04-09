@@ -13,7 +13,7 @@ RUN adduser \
     "${USER}"
 
 # Set us up the build environment
-WORKDIR $GOPATH/src/github.com/supertylerc/scheduler/scheduler
+WORKDIR $GOPATH/src/github.com/supertylerc/sre-portfolio/scheduler
 COPY pkg ./pkg
 COPY internal ./internal
 COPY cmd ./cmd

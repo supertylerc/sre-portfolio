@@ -1,4 +1,4 @@
-module github.com/supertylerc/scheduler/scheduler
+module github.com/supertylerc/sre-portfolio/scheduler
 
 go 1.21
 
