@@ -9,6 +9,9 @@ env:
 
 jobs:
   packer:
+    defaults:
+      run:
+        working-directory: ./packer
     runs-on: ubuntu-latest
     name: Run Packer
     steps:
@@ -21,7 +24,7 @@ jobs:
           version: ${{ env.PRODUCT_VERSION }}
       - name: Run `packer init`
         id: init
-        run: "packer init ./packer"
+        run: "packer init ."
       - name: Run `packer validate`
         id: validate
-        run: "packer validate -var 'api_token=xyz' ./packer"
+        run: "packer validate -var 'api_token=xyz' ."
