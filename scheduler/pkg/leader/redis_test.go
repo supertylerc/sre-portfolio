@@ -6,7 +6,7 @@ import (
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
-	"github.com/supertylerc/scheduler/pkg/leader"
+	"github.com/supertylerc/scheduler/scheduler/pkg/leader"
 )
 
 func TestNewRedisLeader(t *testing.T) {

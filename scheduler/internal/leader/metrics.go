@@ -10,7 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
-	"github.com/supertylerc/scheduler/pkg/leader"
+	"github.com/supertylerc/scheduler/scheduler/pkg/leader"
 )
 
 func Metrics() {

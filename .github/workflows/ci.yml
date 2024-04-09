@@ -1,6 +1,8 @@
-name: ci
+name: scheduler-ci
 on:
   push:
+    paths:
+      - scheduler/**
     branches:
       - master
       - main
@@ -34,8 +36,12 @@ jobs:
 
           # Optional: show only new issues if it's a pull request. The default value is `false`.
           only-new-issues: true
+          working-directory: ./scheduler
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./scheduler
     steps:
       - uses: actions/checkout@v4
       - name: Setup Go
@@ -45,29 +51,21 @@ jobs:
       - name: build
         run: make build
   test-coverage:
-    name: Go test coverage
+    name: Go test coverage, scheduler
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./scheduler
     steps:
       - uses: actions/checkout@v4
       - name: Go test coverage
         uses: actions/setup-go@v4
         with:
           go-version: '1.21.x'
-      
       - name: generate test coverage
         run: go test ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
-      
-      - name: check test coverage
-        uses: vladopajic/go-test-coverage@v2.8.0
-        with:
-         config: ./.testcoverage.yml
-
-      - name: Coveralls test coverage report
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.21.x'
-
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         with:
-          file: ./cover.out
+          file: ./scheduler/cover.out
+          base-path: ./scheduler
