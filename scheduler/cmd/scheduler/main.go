@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
-	internal_leader "github.com/supertylerc/scheduler/internal/leader"
-	"github.com/supertylerc/scheduler/pkg/leader"
+	internal_leader "github.com/supertylerc/scheduler/scheduler/internal/leader"
+	"github.com/supertylerc/scheduler/scheduler/pkg/leader"
 )
 
 func main() {
