@@ -1,0 +1,14 @@
+kubeProxyReplacement: strict
+k8sServicePort: 6443
+hostServices:
+  enabled: false
+externalIPs:
+  enabled: true
+nodePort:
+  enabled: true
+hostPort:
+  enabled: true
+hubble:
+  enabled: true
+  relay:
+    enabled: true
