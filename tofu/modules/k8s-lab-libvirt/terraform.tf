@@ -5,5 +5,9 @@ terraform {
       source  = "dmacvicar/libvirt"
       version = ">0.7"
     }
+    go = {
+      source  = "registry.opentofu.org/opentofu/go"
+      version = ">=0.0.3"
+    }
   }
 }
