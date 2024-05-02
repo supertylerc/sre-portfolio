@@ -6,7 +6,7 @@ variable "prefix" {
 variable "nodes" {
   type = list(object({
     kind   = string # One of: [control-plane, node]
-    count  = number # Number of kind to create
+    num    = number # Number of kind to create
     cpu    = number # Number of CPUs
     memory = number # Amount of RAM, in GB
     disk   = number # Size of disk, in GB

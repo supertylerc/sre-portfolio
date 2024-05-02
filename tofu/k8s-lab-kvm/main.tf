@@ -13,14 +13,14 @@ locals {
   nodes = [
     {
       kind   = "control-plane"
-      count  = 1
+      num    = 1
       cpu    = 2
       memory = 8
       disk   = 40
     },
     {
       kind   = "node"
-      count  = 6
+      num    = 6
       cpu    = 2
       memory = 8
       disk   = 40

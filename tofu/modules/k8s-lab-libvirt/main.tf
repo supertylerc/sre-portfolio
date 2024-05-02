@@ -1,17 +1,6 @@
 resource "libvirt_domain" "k8s_lab" {
-  for_each = {
-    for i in flatten([
-      for n in var.nodes : [
-        for c in range(n.count) : {
-          num    = c
-          kind   = n.kind
-          cpu    = n.cpu
-          memory = n.memory
-          disk   = n.disk
-        }
-      ]
-    ]) : "${i.kind}-${i.num}" => i
-  }
+  for_each = local.nodes
+
   name = each.key
   cpu {
     mode = "host-passthrough"

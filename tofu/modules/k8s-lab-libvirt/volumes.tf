@@ -5,19 +5,8 @@ resource "libvirt_volume" "k8s_lab_base" {
 }
 
 resource "libvirt_volume" "k8s_lab_vm" {
-  for_each = {
-    for i in flatten([
-      for n in var.nodes : [
-        for c in range(n.count) : {
-          num    = c
-          kind   = n.kind
-          cpu    = n.cpu
-          memory = n.memory
-          disk   = n.disk
-        }
-      ]
-    ]) : "${i.kind}-${i.num}" => i
-  }
+  for_each = local.nodes
+
   name           = each.key
   base_volume_id = libvirt_volume.k8s_lab_base.id
   format         = "qcow2"

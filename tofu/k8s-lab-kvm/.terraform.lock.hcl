@@ -22,3 +22,18 @@ provider "registry.opentofu.org/dmacvicar/libvirt" {
     "zh:f85c1d9e51a94ecde137435c9d6b0fb7be590437ea8a725334d1577eebbc550c",
   ]
 }
+
+provider "registry.opentofu.org/opentofu/go" {
+  version     = "0.0.3"
+  constraints = ">= 0.0.3"
+  hashes = [
+    "h1:SBYyxNP3GyVcqdSFT35DVE5h/W1yTWCYgmnqbcX0MtM=",
+    "zh:0ec0e858dd1b2dcfbbcf98de7138175a3cac640734c21680385f424ab376fb4a",
+    "zh:11650eddfb4960471b87200f3931ef96acad9c4260602fe785e2d99b9e1e5380",
+    "zh:3adf9815cd113b49ffe0194512eef6c7d2dd409f7cb257acbd3aaafe10a4b98c",
+    "zh:5974c92811f847819094fc2b0fb75e63fe9c403f1475732c9e882c29a325c917",
+    "zh:8ec390015456d7bb5388d6de27235ac84ed27aa75699203821c262cbcfea6ae8",
+    "zh:e4f58570fd2b8f8c21965f34d1930981cd3e57eb3970e710a1e9c68a127b8a82",
+    "zh:fe49d01092a091cb63b0455839c173f6b62978560262b6b21bf93c3e41b56da3",
+  ]
+}
