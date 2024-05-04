@@ -12,3 +12,11 @@ hubble:
   enabled: true
   relay:
     enabled: true
+ingressController:
+  enabled: true
+  default: true
+  loadbalancerMode: shared
+gatewayAPI:
+  enabled: true
+l2announcements:
+  enabled: true

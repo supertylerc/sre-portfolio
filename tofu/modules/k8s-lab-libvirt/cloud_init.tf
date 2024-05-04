@@ -73,7 +73,9 @@ locals {
           "net.ipv4.ip_forward=1",
           "net.ipv6.conf.all.forwarding=1",
           "net.bridge.bridge-nf-call-ip6tables=1",
-          "net.bridge.bridge-nf-call-iptables=1"
+          "net.bridge.bridge-nf-call-iptables=1",
+	  "net.ipv4.conf.all.proxy_arp=1",
+	  "net.ipv4.conf.ens2.proxy_arp=1"
         ])
       },
       {
@@ -93,6 +95,10 @@ locals {
       {
         path    = "/tmp/values-cilium.yaml"
         content = file("${path.module}/cilium.values.yaml")
+      },
+      {
+        path    = "/tmp/l2announce.yaml"
+	content = file("${path.module}/l2announce.yaml")
       }
     ]
     groups = ["docker"]
