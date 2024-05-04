@@ -13,12 +13,6 @@ locals {
     "hostnamectl set-hostname $(uuidgen)",
     "modprobe br_netfilter",
     "modprobe overlay",
-    "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg", # Add Docker’s official GPG key
-    "curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg",
-    "echo \"deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null", # set up the stable docker repository
-    "echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list",
-    "apt-get update -y",
-    "apt-get install -y containerd.io cri-tools kubelet kubeadm kubectl",
     "apt-mark hold kubelet kubeadm kubectl",
     "sysctl --system", # Reload settings from all system configuration files to take iptables configuration
     "systemctl restart containerd",
@@ -33,11 +27,17 @@ locals {
     "snap install helm --classic",
     "helm repo add cilium https://helm.cilium.io/",
     "kubeadm init --token=${var.join_token} --skip-phases=addon/kube-proxy --cri-socket unix:///var/run/containerd/containerd.sock --v=5",
-    "helm upgrade --kubeconfig /etc/kubernetes/admin.conf --install --namespace kube-system cilium cilium/cilium -f /tmp/values-cilium.yaml --set k8sServiceHost=$(ip --json -4 a | jq -r '.[] | select(.ifname!=\"lo\") | .addr_info[0].local')",
+    "curl -Lsk -o /tmp/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64",
+    "install /tmp/argocd /usr/bin",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.0.0/standard-install.yaml",
+    "helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install --namespace kube-system cilium cilium/cilium -f /tmp/values-cilium.yaml --set k8sServiceHost=$(ip --json -4 a | jq -r '.[] | select(.ifname!=\"lo\") | .addr_info[0].local')",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace argocd",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml",
     "mkdir -p /home/supertylerc/.kube",
     "cp -i /etc/kubernetes/admin.conf /home/supertylerc/.kube/config",
     "chown supertylerc:supertylerc /home/supertylerc/.kube",
-    "chown supertylerc:supertylerc /home/supertylerc/.kube/config"
+    "chown supertylerc:supertylerc /home/supertylerc/.kube/config",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f /tmp/l2announce.yaml",
   ])
 
   user_data = {
@@ -50,6 +50,18 @@ locals {
       ssh_authorized_keys = [file("~/.ssh/id_ed25519.pub")]
     }]
 
+    apt = {
+      sources =  {
+        "docker.list" = {
+          source = "deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable"
+	  keyid = "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+	}
+	"kubernetes.list" = {
+          source = "deb https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /"
+          keyid = "DE15B14486CD377B9E876E1A234654DA9A296436"
+	}
+      }
+    }
     package_update  = true
     package_upgrade = true
     packages = [
@@ -58,6 +70,11 @@ locals {
       "curl",
       "gnupg",
       "lsb-release",
+      "containerd.io",
+      "cri-tools",
+      "kubelet",
+      "kubeadm",
+      "kubectl",
     ]
     write_files = [
       {
