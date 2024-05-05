@@ -1,0 +1,7 @@
+global:
+  domain: argocd.local.tylerc.me
+configs:
+  cm:
+    kustomize.buildOptions: --enable-helm
+  params:
+    server.insecure: true

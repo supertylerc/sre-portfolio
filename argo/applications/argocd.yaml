@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: argo-cd
+    repoURL: https://argoproj.github.io/argo-helm
+    targetRevision: 6.7.*
+    helm:
+      releaseName: argocd
+      valuesObject:
+        global:
+          domain: argocd.local.tylerc.me
+        configs:
+          cm:
+            kustomize.buildOptions: --enable-helm
+          params:
+            # disable TLS termination as Cilium Gateway API will handle it
+            server.insecure: true
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
