@@ -31,18 +31,15 @@ locals {
     "kubeadm init --token=${var.join_token} --skip-phases=addon/kube-proxy --cri-socket unix:///var/run/containerd/containerd.sock --v=5",
     "curl -Lsk -o /tmp/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64",
     "install /tmp/argocd /usr/bin",
-    "kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.0.0/standard-install.yaml",
     "helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install --namespace kube-system cilium cilium/cilium -f /tmp/values-cilium.yaml --set k8sServiceHost=$(ip --json -4 a | jq -r '.[] | select(.ifname!=\"lo\") | .addr_info[0].local')",
     "openssl req -x509 -new -nodes -days 365 -key /tmp/ca.key -out /tmp/ca.crt -subj '/CN=argocd.local.tylerc.me'",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create secret tls argocd-server-tls -n argocd  --key ca.key --cert ca.crt",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace argocd",
-    "helm install argocd argo/argo-cd -f argocd.values.yaml -n argocd",
-    "kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f gateway.yaml",
+    "helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install argocd argo/argo-cd -f argocd.values.yaml -n argocd",
     "mkdir -p /home/supertylerc/.kube",
     "cp -i /etc/kubernetes/admin.conf /home/supertylerc/.kube/config",
     "chown supertylerc:supertylerc /home/supertylerc/.kube",
     "chown supertylerc:supertylerc /home/supertylerc/.kube/config",
-    "kubectl --kubeconfig /etc/kubernetes/admin.conf apply -f /tmp/l2announce.yaml",
   ])
 
   user_data = {
@@ -118,10 +115,6 @@ locals {
         path    = "/tmp/values-cilium.yaml"
         content = file("${path.module}/cilium.values.yaml")
       },
-      {
-        path    = "/tmp/l2announce.yaml"
-	content = file("${path.module}/l2announce.yaml")
-      }
     ]
     groups = ["docker"]
     power_state = {

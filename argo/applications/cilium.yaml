@@ -5,37 +5,40 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    chart: cilium
-    repoURL: https://helm.cilium.io/
-    targetRevision: 1.15.*
-    helm:
-      releaseName: cilium
-      valuesObject:
-        kubeProxyReplacement: strict
-        # Necessary when using kube-proxy replacement
-        k8sServicePort: 6443
-        hostServices:
-          enabled: false
-        externalIPs:
-          enabled: true
-        nodePort:
-          enabled: true
-        hostPort:
-          enabled: true
-        hubble:
-          enabled: true
-          relay:
+  sources:
+    - chart: cilium
+      repoURL: https://helm.cilium.io/
+      targetRevision: 1.15.*
+      helm:
+        releaseName: cilium
+        valuesObject:
+          kubeProxyReplacement: strict
+          # Necessary when using kube-proxy replacement
+          k8sServicePort: 6443
+          hostServices:
+            enabled: false
+          externalIPs:
             enabled: true
-        ingressController:
-          enabled: true
-          default: true
-          # Share the external IP of the ingress instead of creating them dedicated
-          loadbalancerMode: shared
-        gatewayAPI:
-          enabled: true
-        l2announcements:
-          enabled: true
+          nodePort:
+            enabled: true
+          hostPort:
+            enabled: true
+          hubble:
+            enabled: true
+            relay:
+              enabled: true
+          ingressController:
+            enabled: true
+            default: true
+            # Share the external IP of the ingress instead of creating them dedicated
+            loadbalancerMode: shared
+          gatewayAPI:
+            enabled: true
+          l2announcements:
+            enabled: true
+    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+      path: k8s-lab/cilium
+      targetRevision: HEAD
   destination:
     server: "https://kubernetes.default.svc"
     namespace: kube-system
