@@ -35,7 +35,7 @@ locals {
     "openssl req -x509 -new -nodes -days 365 -key /tmp/ca.key -out /tmp/ca.crt -subj '/CN=argocd.local.tylerc.me'",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create secret tls argocd-server-tls -n argocd  --key ca.key --cert ca.crt",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace argocd",
-    "helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install argocd argo/argo-cd -f argocd.values.yaml -n argocd",
+    "helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install argocd argo/argo-cd -f /tmp/values-argocd.yaml -n argocd",
     "mkdir -p /home/supertylerc/.kube",
     "cp -i /etc/kubernetes/admin.conf /home/supertylerc/.kube/config",
     "chown supertylerc:supertylerc /home/supertylerc/.kube",
@@ -114,6 +114,10 @@ locals {
       {
         path    = "/tmp/values-cilium.yaml"
         content = file("${path.module}/cilium.values.yaml")
+      },
+      {
+        path    = "/tmp/values-argocd.yaml"
+        content = file("${path.module}/argocd.values.yaml")
       },
     ]
     groups = ["docker"]
