@@ -6,6 +6,7 @@ module "lab" {
   libvirt_cidr      = local.libvirt_cidr
   control_plane_num = local.control_plane_num
   join_token        = var.join_token
+  cloudflare_token  = var.cloudflare_token
 }
 
 locals {
@@ -34,4 +35,10 @@ variable "join_token" {
   type        = string
   sensitive   = true
   description = "kubeadm join token to simplify cluster provisioning (generate with 'kubeadm token generate')"
+}
+
+variable "cloudflare_token" {
+  type        = string
+  sensitive   = true
+  description = "Cloudflare API token for cert-manager and LE ClusterIssuer to use"
 }
