@@ -7,7 +7,7 @@ module "lab" {
   control_plane_num = local.control_plane_num
   join_token        = var.join_token
   cloudflare_token  = var.cloudflare_token
-  cloudflare_token  = var.cloudflare_email
+  cloudflare_email  = var.cloudflare_email
 }
 
 locals {
