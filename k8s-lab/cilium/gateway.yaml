@@ -2,20 +2,30 @@
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: Gateway
 metadata:
-  name: argocd
-  namespace: argocd
+  name: cilium-gateway
+  namespace: gateway
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   gatewayClassName: cilium
+  infrastructure:
+    annotations:
+      io.cilium/lb-ipam-ips: "10.0.42.52"
   listeners:
-  - hostname: argocd.local.tylerc.me
-    name: argocd-http
+  - hostname: "*.local.tylerc.me"
+    name: http
     port: 80
     protocol: HTTP
-  - hostname: argocd.local.tylerc.me
-    name: argocd-https
+    allowedRoutes:
+      namespaces:
+        from: All
+  - hostname: "*.local.tylerc.me"
+    name: https
     port: 443
     protocol: HTTPS
     tls:
       certificateRefs:
-        - kind: Secret
-          name: argocd-server-tls
+        - name: local-tylerc-me-wildcard
+    allowedRoutes:
+      namespaces:
+        from: All

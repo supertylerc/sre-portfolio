@@ -8,13 +8,12 @@ spec:
   hostnames:
   - argocd.local.tylerc.me
   parentRefs:
-  - name: argocd
+  - name: cilium-gateway
+    namespace: gateway
   rules:
   - backendRefs:
     - name: argocd-server
       port: 80
-    - name: argocd-server
-      port: 443
     matches:
     - path:
         type: PathPrefix
