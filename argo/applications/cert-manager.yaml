@@ -17,6 +17,9 @@ spec:
           enableCertificateOwnerRef: true
           prometheus:
             enabled: false
+    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+      path: k8s-lab/cert-manager
+      targetRevision: HEAD
   destination:
     server: "https://kubernetes.default.svc"
     namespace: cert-manager

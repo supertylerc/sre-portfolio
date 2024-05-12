@@ -32,9 +32,9 @@ locals {
     "curl -Lsk -o /tmp/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64",
     "install /tmp/argocd /usr/bin",
     "helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install --namespace kube-system cilium cilium/cilium -f /tmp/values-cilium.yaml --set k8sServiceHost=$(ip --json -4 a | jq -r '.[] | select(.ifname!=\"lo\") | .addr_info[0].local')",
-    "openssl req -x509 -new -nodes -days 365 -key /tmp/ca.key -out /tmp/ca.crt -subj '/CN=argocd.local.tylerc.me'",
-    "kubectl --kubeconfig /etc/kubernetes/admin.conf create secret tls argocd-server-tls -n argocd  --key ca.key --cert ca.crt",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace argocd",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace gateway",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace cert-manager",
     "helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install argocd argo/argo-cd -f /tmp/values-argocd.yaml -n argocd",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/gateway-api.yaml",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/argocd.yaml",
@@ -45,6 +45,7 @@ locals {
     "cp -i /etc/kubernetes/admin.conf /home/supertylerc/.kube/config",
     "chown supertylerc:supertylerc /home/supertylerc/.kube",
     "chown supertylerc:supertylerc /home/supertylerc/.kube/config",
+    "while kubectl --kubeconfig /etc/kubernetes/admin.conf get application -A | grep -v "Synced.*Healthy" | grep -v NAME; do sleep 0.5; done",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart deploy/cilium-operator -n kube-system",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart ds/cilium -n kube-system"
   ])
