@@ -35,3 +35,8 @@ variable "cloudflare_token" {
   sensitive   = true
   description = "Cloudflare API token for cert-manager and LE ClusterIssuer to use"
 }
+
+variable "cloudflare_email" {
+  type        = string
+  description = "E-mail address used for Cloudflare API token"
+}

@@ -35,19 +35,23 @@ locals {
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace argocd",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace gateway",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace cert-manager",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace external-dns",
     "helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install argocd argo/argo-cd -f /tmp/values-argocd.yaml -n argocd",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/gateway-api.yaml",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/argocd.yaml",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/cilium.yaml",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/cert-manager.yaml",
-    "kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=${var.cloudflare_token} -n cert-manager",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=${var.cloudflare_token} --from-literal=email=${var.cloudflare_email} -n cert-manager",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=${var.cloudflare_token} --from-literal=email=${var.cloudflare_email} -n external-dns",
     "mkdir -p /home/supertylerc/.kube",
     "cp -i /etc/kubernetes/admin.conf /home/supertylerc/.kube/config",
     "chown supertylerc:supertylerc /home/supertylerc/.kube",
     "chown supertylerc:supertylerc /home/supertylerc/.kube/config",
-    "while kubectl --kubeconfig /etc/kubernetes/admin.conf get application -A | grep -v "Synced.*Healthy" | grep -v NAME; do sleep 0.5; done",
+    "while kubectl --kubeconfig /etc/kubernetes/admin.conf get application -A | grep -v 'Synced.*Healthy' | grep -v NAME; do sleep 0.5; done",
+    "while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart deploy/cilium-operator -n kube-system",
-    "kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart ds/cilium -n kube-system"
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart ds/cilium -n kube-system",
+    "while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done"
   ])
 
   user_data = {
