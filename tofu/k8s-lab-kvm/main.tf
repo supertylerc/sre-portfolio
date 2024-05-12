@@ -7,6 +7,7 @@ module "lab" {
   control_plane_num = local.control_plane_num
   join_token        = var.join_token
   cloudflare_token  = var.cloudflare_token
+  cloudflare_token  = var.cloudflare_email
 }
 
 locals {
@@ -41,4 +42,9 @@ variable "cloudflare_token" {
   type        = string
   sensitive   = true
   description = "Cloudflare API token for cert-manager and LE ClusterIssuer to use"
+}
+
+variable "cloudflare_email" {
+  type        = string
+  description = "E-mail address used for Cloudflare API token"
 }
