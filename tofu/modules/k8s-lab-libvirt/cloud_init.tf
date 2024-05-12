@@ -39,10 +39,14 @@ locals {
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/gateway-api.yaml",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/argocd.yaml",
     "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/cilium.yaml",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/cert-manager.yaml",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=${var.cloudflare_token} -n cert-manager",
     "mkdir -p /home/supertylerc/.kube",
     "cp -i /etc/kubernetes/admin.conf /home/supertylerc/.kube/config",
     "chown supertylerc:supertylerc /home/supertylerc/.kube",
     "chown supertylerc:supertylerc /home/supertylerc/.kube/config",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart deploy/cilium-operator -n kube-system",
+    "kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart ds/cilium -n kube-system"
   ])
 
   user_data = {

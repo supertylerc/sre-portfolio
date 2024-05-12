@@ -29,3 +29,9 @@ variable "control_plane_num" {
   type        = number
   description = "Which number in the subnet to use for the control plane"
 }
+
+variable "cloudflare_token" {
+  type        = string
+  sensitive   = true
+  description = "Cloudflare API token for cert-manager and LE ClusterIssuer to use"
+}
