@@ -9,28 +9,27 @@ resource "libvirt_cloudinit_disk" "node" {
 }
 
 locals {
-  node_run_cmds = provider::go::cloudruncmds("node")
-  control_plane_run_cmds = provider::go::cloudruncmds("control-plane")
+  node_run_cmds          = provider::go::cloudruncmds("node", {
+    control_plane_ip = cidrhost(var.libvirt_cidr, var.control_plane_num)
+    join_token       = var.join_token
+  })
+  control_plane_run_cmds = provider::go::cloudruncmds("control-plane", {
+    join_token       = var.join_token
+    cloudflare_token = var.cloudflare_token
+    cloudflare_email = var.cloudflare_email
+  })
   user_data = {
-    users = [{
-      name                = "supertylerc"
-      hashed_passwd       = "$6$rounds=4096$nDzAXP.111c5arXO$58.b5gsevh.JHRNKzuw2BMd7P78VC19GYFOlzAOGIwOZUwWgxhaKq0HyWnq8GaKwfeDcF4cXIU.M4fyp7169U."
-      lock_passwd         = false
-      groups              = "users, admin"
-      shell               = "/bin/bash"
-      ssh_authorized_keys = [file("~/.ssh/id_ed25519.pub")]
-    }]
-
+    users = var.users
     apt = {
-      sources =  {
+      sources = {
         "docker.list" = {
           source = "deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable"
-	  keyid = "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
-	}
-	"kubernetes.list" = {
+          keyid  = "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+        }
+        "kubernetes.list" = {
           source = "deb https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /"
-          keyid = "DE15B14486CD377B9E876E1A234654DA9A296436"
-	}
+          keyid  = "DE15B14486CD377B9E876E1A234654DA9A296436"
+        }
       }
     }
     package_update  = true
@@ -62,8 +61,8 @@ locals {
           "net.ipv6.conf.all.forwarding=1",
           "net.bridge.bridge-nf-call-ip6tables=1",
           "net.bridge.bridge-nf-call-iptables=1",
-	  "net.ipv4.conf.all.proxy_arp=1",
-	  "net.ipv4.conf.ens2.proxy_arp=1"
+          "net.ipv4.conf.all.proxy_arp=1",
+          "net.ipv4.conf.ens2.proxy_arp=1"
         ])
       },
       {
