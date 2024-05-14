@@ -112,7 +112,7 @@ locals {
       },
       {
         path    = "/etc/containerd/config.toml"
-        content = file("${path.module}/containerd.config.toml")
+        content = file("${path.module}/configs/containerd.config.toml")
       },
       {
         path = "/etc/crictl.yaml"
@@ -126,11 +126,11 @@ locals {
       },
       {
         path    = "/tmp/values-cilium.yaml"
-        content = file("${path.module}/cilium.values.yaml")
+        content = file("${path.module}/configs/cilium.values.yaml")
       },
       {
         path    = "/tmp/values-argocd.yaml"
-        content = file("${path.module}/argocd.values.yaml")
+        content = file("${path.module}/configs/argocd.values.yaml")
       },
     ]
     groups = ["docker"]
