@@ -9,7 +9,7 @@ resource "libvirt_cloudinit_disk" "node" {
 }
 
 locals {
-  node_run_cmds          = provider::go::cloudruncmds("node", {
+  node_run_cmds = provider::go::cloudruncmds("node", {
     control_plane_ip = cidrhost(var.libvirt_cidr, var.control_plane_num)
     join_token       = var.join_token
   })
@@ -85,7 +85,7 @@ locals {
       },
       {
         path    = "/tmp/values-argocd.yaml"
-        content = file("${path.module}/configs/argocd.values.yaml")
+        content = templatefile("${path.module}/configs/argocd.values.yaml.tftpl", { argocd_domain = var.argocd_domain })
       },
     ]
     groups = ["docker"]

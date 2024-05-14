@@ -52,3 +52,8 @@ variable "users" {
   }))
   description = "Users to create with cloud-init"
 }
+
+variable "argocd_domain" {
+  type        = string
+  description = "FQDN for ArgoCD"
+}

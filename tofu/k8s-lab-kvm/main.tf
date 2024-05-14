@@ -9,6 +9,7 @@ module "lab" {
   cloudflare_token  = var.cloudflare_token
   cloudflare_email  = var.cloudflare_email
   users             = local.users
+  argocd_domain     = local.argocd_domain
 }
 
 locals {
@@ -36,7 +37,7 @@ locals {
     hashed_passwd       = var.hashed_password
     ssh_authorized_keys = [file("~/.ssh/id_ed25519.pub")]
   }]
-
+  argocd_domain = "argocd.local.tylerc.me"
 }
 
 variable "join_token" {
