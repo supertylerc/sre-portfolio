@@ -40,3 +40,15 @@ variable "cloudflare_email" {
   type        = string
   description = "E-mail address used for Cloudflare API token"
 }
+
+variable "users" {
+  type = list(object({
+    name                = string
+    hashed_passwd       = string
+    lock_passwd         = optional(bool, false)
+    groups              = optional(string, "users, admin")
+    shell               = optional(string, "/bin/bash")
+    ssh_authorized_keys = optional(list(string))
+  }))
+  description = "Users to create with cloud-init"
+}

@@ -8,6 +8,7 @@ module "lab" {
   join_token        = var.join_token
   cloudflare_token  = var.cloudflare_token
   cloudflare_email  = var.cloudflare_email
+  users             = local.users
 }
 
 locals {
@@ -30,6 +31,12 @@ locals {
   ]
   libvirt_cidr      = "10.0.42.0/24"
   control_plane_num = 10
+  users = [{
+    name                = "supertylerc"
+    hashed_passwd       = var.hashed_password
+    ssh_authorized_keys = [file("~/.ssh/id_ed25519.pub")]
+  }]
+
 }
 
 variable "join_token" {
@@ -47,4 +54,10 @@ variable "cloudflare_token" {
 variable "cloudflare_email" {
   type        = string
   description = "E-mail address used for Cloudflare API token"
+}
+
+variable "hashed_password" {
+  type        = string
+  sensitive   = true
+  description = "Hashed password for user"
 }
