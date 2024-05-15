@@ -57,3 +57,9 @@ variable "argocd_domain" {
   type        = string
   description = "FQDN for ArgoCD"
 }
+
+variable "argocd_apps" {
+  type        = list(string)
+  description = "List of ArgoCD app manifests that can be retrieved from the Internet to help bootstrap"
+  default     = []
+}

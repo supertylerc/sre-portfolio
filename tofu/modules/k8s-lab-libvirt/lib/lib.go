@@ -4,6 +4,17 @@ import (
 	"fmt"
 )
 
+type NodeRunCmdVars struct {
+	JoinToken      string `tf:"join_token"`
+	ControlPlaneIP string `tf:"control_plane_ip"`
+}
+type ControlPlaneRunCmdVars struct {
+	JoinToken       string   `tf:"join_token"`
+	ArgoCDApps      []string `tf:"argocd_apps"`
+	CloudflareToken string   `tf:"cloudflare_token"`
+	CloudflareEmail string   `tf:"cloudflare_email"`
+}
+
 func commonRunCmds() []string {
 	return []string{
 		"hostnamectl set-hostname $(uuidgen)",
@@ -15,20 +26,28 @@ func commonRunCmds() []string {
 		"systemctl enable containerd",
 	}
 }
-func nodeRunCmds(vars map[string]string) []string {
-	return []string{
-		fmt.Sprintf("until nc -zvw5 %s 6443; do sleep 0.5; done", vars["control_plane_ip"]),
-		fmt.Sprintf("kubeadm join %s:6443 --token %s --discovery-token-unsafe-skip-ca-verification", vars["control_plane_ip"], vars["join_token"]),
-	}
+func NodeRunCmds(vars NodeRunCmdVars) []string {
+	return append(commonRunCmds(), []string{
+		fmt.Sprintf("until nc -zvw5 %s 6443; do sleep 0.5; done", vars.ControlPlaneIP),
+		fmt.Sprintf("kubeadm join %s:6443 --token %s --discovery-token-unsafe-skip-ca-verification", vars.ControlPlaneIP, vars.JoinToken),
+	}...)
 }
 
-func controlPlaneRunCmds(vars map[string]string) []string {
-	return []string{
+func argoCDApps(apps []string) []string {
+	cmds := []string
+	for _, v := range apps {
+		cmds = append(cmds, fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create -f %s", v))
+	}
+	return cmds
+}
+
+func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
+	preArgo := []string{
 		"snap install helm --classic",
 		"helm repo add cilium https://helm.cilium.io/",
 		"helm repo add argo https://argoproj.github.io/argo-helm",
 		"helm repo update",
-		fmt.Sprintf("kubeadm init --token=%s --skip-phases=addon/kube-proxy --cri-socket unix:///var/run/containerd/containerd.sock --v=5", vars["join_token"]),
+		fmt.Sprintf("kubeadm init --token=%s --skip-phases=addon/kube-proxy --cri-socket unix:///var/run/containerd/containerd.sock --v=5", vars.JoinToken),
 		"curl -Lsk -o /tmp/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64",
 		"install /tmp/argocd /usr/bin",
 		"helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install --namespace kube-system cilium cilium/cilium -f /tmp/values-cilium.yaml --set k8sServiceHost=$(ip --json -4 a | jq -r '.[] | select(.ifname!=\"lo\") | .addr_info[0].local')",
@@ -37,13 +56,10 @@ func controlPlaneRunCmds(vars map[string]string) []string {
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace cert-manager",
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace external-dns",
 		"helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install argocd argo/argo-cd -f /tmp/values-argocd.yaml -n argocd",
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/gateway-api.yaml",
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/argocd.yaml",
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/cilium.yaml",
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/cert-manager.yaml",
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf create -f https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/external-dns.yaml",
-		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n cert-manager", vars["cloudflare_token"], vars["cloudflare_email"]),
-		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n external-dns", vars["cloudflare_token"], vars["cloudflare_email"]),
+	}
+	postArgo := []string{
+		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n cert-manager", vars.CloudflareToken, vars.CloudflareEmail),
+		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n external-dns", vars.CloudflareToken, vars.CloudflareEmail),
 		"mkdir -p /home/supertylerc/.kube",
 		"cp -i /etc/kubernetes/admin.conf /home/supertylerc/.kube/config",
 		"chown supertylerc:supertylerc /home/supertylerc/.kube",
@@ -54,17 +70,10 @@ func controlPlaneRunCmds(vars map[string]string) []string {
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart ds/cilium -n kube-system",
 		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
 	}
-}
-
-func CloudRunCmds(nodeKind string, vars map[string]string) []string {
-	switch nodeKind {
-	case "control-plane":
-		return append(commonRunCmds(), controlPlaneRunCmds(vars)...)
-	case "node":
-		return append(commonRunCmds(), nodeRunCmds(vars)...)
-	default:
-		return []string{}
-	}
+	combined := append(commonRunCmds(), preArgo...)
+	combined = append(combined, argoCDApps(vars.ArgoCDApps)...)
+	combined = append(combined, postArgo...)
+	return combined
 }
 
 type Node struct {

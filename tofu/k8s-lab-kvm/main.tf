@@ -10,6 +10,7 @@ module "lab" {
   cloudflare_email  = var.cloudflare_email
   users             = local.users
   argocd_domain     = local.argocd_domain
+  argocd_apps       = local.argocd_apps
 }
 
 locals {
@@ -38,6 +39,14 @@ locals {
     ssh_authorized_keys = [file("~/.ssh/id_ed25519.pub")]
   }]
   argocd_domain = "argocd.local.tylerc.me"
+  argocd_apps = [
+    "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/gateway-api.yaml",
+    "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/argocd.yaml",
+    "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/cilium.yaml",
+    "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/cert-manager.yaml",
+    "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/external-dns.yaml",
+  ]
+
 }
 
 variable "join_token" {
