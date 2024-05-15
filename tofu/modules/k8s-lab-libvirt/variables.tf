@@ -63,3 +63,9 @@ variable "argocd_apps" {
   description = "List of ArgoCD app manifests that can be retrieved from the Internet to help bootstrap"
   default     = []
 }
+
+variable "cni" {
+  type        = string
+  description = "Kubernetes CNI to use"
+  default     = "cilium"
+}

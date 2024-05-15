@@ -13,6 +13,7 @@ type ControlPlaneRunCmdVars struct {
 	ArgoCDApps      []string `tf:"argocd_apps"`
 	CloudflareToken string   `tf:"cloudflare_token"`
 	CloudflareEmail string   `tf:"cloudflare_email"`
+	CNI             string   `tf:"cni"`
 }
 
 func commonRunCmds() []string {
@@ -42,22 +43,33 @@ func argoCDApps(apps []string) []string {
 }
 
 func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
-	preArgo := []string{
+	cmds := append(commonRunCmds(), []string{
 		"snap install helm --classic",
-		"helm repo add cilium https://helm.cilium.io/",
 		"helm repo add argo https://argoproj.github.io/argo-helm",
 		"helm repo update",
 		fmt.Sprintf("kubeadm init --token=%s --skip-phases=addon/kube-proxy --cri-socket unix:///var/run/containerd/containerd.sock --v=5", vars.JoinToken),
 		"curl -Lsk -o /tmp/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64",
 		"install /tmp/argocd /usr/bin",
-		"helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install --namespace kube-system cilium cilium/cilium -f /tmp/values-cilium.yaml --set k8sServiceHost=$(ip --json -4 a | jq -r '.[] | select(.ifname!=\"lo\") | .addr_info[0].local')",
+	}...)
+	var cniCmds []string
+	switch vars.CNI {
+	case "cilium":
+		cniCmds = []string{
+			"helm repo add cilium https://helm.cilium.io/",
+			"helm repo update",
+			"helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install --namespace kube-system cilium cilium/cilium -f /tmp/values-cilium.yaml --set k8sServiceHost=$(ip --json -4 a | jq -r '.[] | select(.ifname!=\"lo\") | .addr_info[0].local')",
+		}
+	}
+	cmds = append(cmds, cniCmds...)
+	cmds = append(cmds, []string{
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace argocd",
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace gateway",
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace cert-manager",
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace external-dns",
 		"helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install argocd argo/argo-cd -f /tmp/values-argocd.yaml -n argocd",
-	}
-	postArgo := []string{
+	}...)
+	cmds = append(cmds, argoCDApps(vars.ArgoCDApps)...)
+	cmds = append(cmds, []string{
 		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n cert-manager", vars.CloudflareToken, vars.CloudflareEmail),
 		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n external-dns", vars.CloudflareToken, vars.CloudflareEmail),
 		"mkdir -p /home/supertylerc/.kube",
@@ -66,14 +78,16 @@ func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
 		"chown supertylerc:supertylerc /home/supertylerc/.kube/config",
 		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get application -A | grep -v 'Synced.*Healthy' | grep -v NAME; do sleep 0.5; done",
 		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart deploy/cilium-operator -n kube-system",
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart ds/cilium -n kube-system",
-		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
+	}...)
+	switch vars.CNI {
+	case "cilium":
+		cmds = append(cmds, []string{
+			"kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart deploy/cilium-operator -n kube-system",
+			"kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart ds/cilium -n kube-system",
+			"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
+		}...)
 	}
-	combined := append(commonRunCmds(), preArgo...)
-	combined = append(combined, argoCDApps(vars.ArgoCDApps)...)
-	combined = append(combined, postArgo...)
-	return combined
+	return cmds
 }
 
 type Node struct {
