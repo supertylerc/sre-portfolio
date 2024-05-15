@@ -9,14 +9,15 @@ resource "libvirt_cloudinit_disk" "node" {
 }
 
 locals {
-  node_run_cmds = provider::go::cloudruncmds("node", {
+  node_run_cmds = provider::go::noderuncmds({
     control_plane_ip = cidrhost(var.libvirt_cidr, var.control_plane_num)
     join_token       = var.join_token
   })
-  control_plane_run_cmds = provider::go::cloudruncmds("control-plane", {
+  control_plane_run_cmds = provider::go::controlplaneruncmds({
     join_token       = var.join_token
     cloudflare_token = var.cloudflare_token
     cloudflare_email = var.cloudflare_email
+    argocd_apps      = var.argocd_apps
   })
   user_data = {
     users = var.users
