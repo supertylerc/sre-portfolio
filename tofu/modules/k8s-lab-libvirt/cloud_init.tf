@@ -18,6 +18,7 @@ locals {
     cloudflare_token = var.cloudflare_token
     cloudflare_email = var.cloudflare_email
     argocd_apps      = var.argocd_apps
+    cni              = var.cni
   })
   user_data = {
     users = var.users
