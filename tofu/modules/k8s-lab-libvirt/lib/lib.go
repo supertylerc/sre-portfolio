@@ -25,6 +25,7 @@ func commonRunCmds() []string {
 		"sysctl --system",
 		"systemctl restart containerd",
 		"systemctl enable containerd",
+		"apt purge -y multipath-tools",
 	}
 }
 func NodeRunCmds(vars NodeRunCmdVars) []string {
