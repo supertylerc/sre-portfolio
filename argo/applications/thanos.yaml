@@ -1,0 +1,70 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: thanos
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: default
+  sources:
+    - chart: thanos
+      repoURL: https://charts.bitnami.com/bitnami
+      targetRevision: 15.4.*
+      helm:
+        releaseName: thanos
+        valuesObject:
+          existingObjstoreSecret: thanos-objstore
+          query:
+            replicaCount: 3
+            extraFlags:
+              - --query.promql-engine=thanos
+            pdb:
+              create: true
+            dnsDiscovery:
+              sidecarsService: "prometheus-operated"
+              sidecarsNamespace: "monitoring-system"
+          queryFrontend:
+            replicaCount: 3
+            pdb:
+              create: true
+            extraFlags:
+              - '--query-frontend.downstream-tripper-config="max_idle_conns_per_host": 100'
+          compactor:
+            enabled: true
+            persistence:
+              storageClass: longhorn
+          storegateway:
+            enabled: true
+            persistence:
+              storageClass: longhorn
+            pdb:
+              create: true
+            sharded:
+              enabled: true
+              hashPartitioning:
+                shards: 3
+          metrics:
+            enabled: true
+            serviceMonitor:
+              enabled: true
+    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+      path: k8s-lab/thanos
+      targetRevision: HEAD
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      jqPathExpressions:
+        - .spec.volumeClaimTemplates[].kind
+        - .spec.volumeClaimTemplates[].apiVersion
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
