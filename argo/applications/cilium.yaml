@@ -15,6 +15,22 @@ spec:
           kubeProxyReplacement: strict
           # Necessary when using kube-proxy replacement
           k8sServicePort: 6443
+          dashboards:
+            enabled: true
+            namespace: monitoring-system
+          envoy:
+            prometheus:
+              enabled: true
+              serviceMonitor:
+                enabled: true
+                labels:
+                  prometheus: cilium
+          prometheus:
+            enabled: true
+            serviceMonitor:
+              enabled: true
+              labels:
+                prometheus: cilium
           hostServices:
             enabled: false
           externalIPs:
@@ -25,8 +41,31 @@ spec:
             enabled: true
           hubble:
             enabled: true
+            ui:
+              enabled: true
+              livenessProbe:
+                enabled: true
+              readinessProbe:
+                enabled: true
             relay:
               enabled: true
+            metrics:
+              serviceMonitor:
+                enabled: true
+                labels:
+                  prometheus: cilium
+              dashboards:
+                enabled: true
+                namespace: monitoring-system
+              enabled:
+                - dns
+                - drop
+                - flow
+                - flows-to-world
+                - httpV2
+                - icmp
+                - port-distribution
+                - tcp
           ingressController:
             enabled: true
             default: true

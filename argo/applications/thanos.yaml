@@ -60,6 +60,8 @@ spec:
             enabled: true
             serviceMonitor:
               enabled: true
+              labels:
+                prometheus: thanos
     - repoURL: https://github.com/supertylerc/sre-portfolio.git
       path: k8s-lab/thanos
       targetRevision: HEAD

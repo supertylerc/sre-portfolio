@@ -16,7 +16,10 @@ spec:
           featureGates: ExperimentalGatewayAPISupport=true
           enableCertificateOwnerRef: true
           prometheus:
-            enabled: false
+            enabled: true
+            serviceMonitor:
+              enabled: true
+              prometheusInstance: cert-manager
     - repoURL: https://github.com/supertylerc/sre-portfolio.git
       path: k8s-lab/cert-manager
       targetRevision: HEAD
