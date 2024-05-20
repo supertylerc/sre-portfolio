@@ -30,6 +30,12 @@ spec:
               create: true
             extraFlags:
               - '--query-frontend.downstream-tripper-config="max_idle_conns_per_host": 100'
+            config: |-
+              type: REDIS
+              config:
+                addr: 'thanos-redis:6379'
+                db: 0
+                expiration: 72h0m0s
           compactor:
             enabled: true
             persistence:
@@ -44,6 +50,12 @@ spec:
               enabled: true
               hashPartitioning:
                 shards: 3
+            config: |-
+              type: REDIS
+              config:
+                addr: 'thanos-redis:6379'
+                db: 1
+                expiration: 72h0m0s
           metrics:
             enabled: true
             serviceMonitor:

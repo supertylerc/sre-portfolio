@@ -1,0 +1,7 @@
+---
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  name: thanos-redis
+spec:
+  replicas: 3
