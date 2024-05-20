@@ -14,6 +14,9 @@ spec:
         valuesObject:
           preUpgradeChecker:
             jobEnabled: false
+          metrics:
+            serviceMonitor:
+              enabled: true
     - repoURL: https://github.com/supertylerc/sre-portfolio.git
       path: k8s-lab/longhorn
       targetRevision: HEAD

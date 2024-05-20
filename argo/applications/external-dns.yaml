@@ -12,6 +12,10 @@ spec:
       helm:
         releaseName: external-dns
         valuesObject:
+          serviceMonitor:
+            enabled: true
+            additionalLabels:
+              prometheus: external-dns
           sources:
             - gateway-httproute
             - gateway-grpcroute
@@ -33,6 +37,9 @@ spec:
                 secretKeyRef:
                   name: cloudflare-api-token
                   key: email
+    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+      path: k8s-lab/external-dns
+      targetRevision: HEAD
   destination:
     server: "https://kubernetes.default.svc"
     namespace: external-dns
