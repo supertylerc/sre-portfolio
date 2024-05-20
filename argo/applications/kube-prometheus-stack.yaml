@@ -17,13 +17,36 @@ spec:
           prometheus:
             prometheusSpec:    
               storageSpec: 
-               volumeClaimTemplate:
-                 spec:
-                   storageClassName: longhorn
-                   accessModes: ["ReadWriteOnce"]
-                   resources:
-                     requests:
-                       storage: 2Gi
+                volumeClaimTemplate:
+                  spec:
+                    storageClassName: longhorn
+                    accessModes: ["ReadWriteOnce"]
+                    resources:
+                      requests:
+                        storage: 2Gi
+              thanos:
+                objectStorageConfig:
+                  existingSecret:
+                    name: thanos-objstore
+                    key: objstore.yml
+              thanosService:
+                enabled: true
+              thanosServiceMonitor:
+                enabled: true
+          grafana:
+            sidecar:
+              datasources:
+                defaultDatasourceEnabled: false
+            deleteDatasources:
+              - name: Prometheus
+            additionalDataSources:
+              - name: thanos
+                type: prometheus
+                url: "http://thanos-query-frontend:9090"
+                uid: thanos
+                isDefault: true
+                jsonData:
+                  prometheusType: "Thanos"
     - repoURL: https://github.com/supertylerc/sre-portfolio.git
       path: k8s-lab/kube-prometheus-stack
       targetRevision: HEAD
