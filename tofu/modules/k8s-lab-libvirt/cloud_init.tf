@@ -14,11 +14,12 @@ locals {
     join_token       = var.join_token
   })
   control_plane_run_cmds = provider::go::controlplaneruncmds({
-    join_token       = var.join_token
     cloudflare_token = var.cloudflare_token
     cloudflare_email = var.cloudflare_email
     argocd_apps      = var.argocd_apps
     cni              = var.cni
+    pushover_token   = var.pushover_token
+    pushover_key     = var.pushover_key
   })
   user_data = {
     users = var.users
@@ -91,7 +92,7 @@ locals {
       },
       {
         path    = "/tmp/kubeadm.yaml"
-        content = file("${path.module}/configs/kubeadm.yaml")
+        content = templatefile("${path.module}/configs/kubeadm.yaml.tftpl", { join_token = var.join_token })
       },
     ]
     groups = ["docker"]

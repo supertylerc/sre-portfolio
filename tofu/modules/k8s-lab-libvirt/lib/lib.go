@@ -9,7 +9,6 @@ type NodeRunCmdVars struct {
 	ControlPlaneIP string `tf:"control_plane_ip"`
 }
 type ControlPlaneRunCmdVars struct {
-	JoinToken       string   `tf:"join_token"`
 	ArgoCDApps      []string `tf:"argocd_apps"`
 	CloudflareToken string   `tf:"cloudflare_token"`
 	CloudflareEmail string   `tf:"cloudflare_email"`
@@ -50,7 +49,7 @@ func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
 		"snap install helm --classic",
 		"helm repo add argo https://argoproj.github.io/argo-helm",
 		"helm repo update",
-		fmt.Sprintf("kubeadm init --token=%s --skip-phases=addon/kube-proxy --cri-socket unix:///var/run/containerd/containerd.sock --v=5 --config=/tmp/kubeadm.yaml", vars.JoinToken),
+		fmt.Sprintf("kubeadm init --v=5 --config=/tmp/kubeadm.yaml"),
 		"curl -Lsk -o /tmp/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64",
 		"install /tmp/argocd /usr/bin",
 	}...)
@@ -77,24 +76,22 @@ func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
 		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic -n monitoring-system pushover-config --from-literal=token=%s --from-literal=userkey=%s", vars.PushoverToken, vars.PushoverKey),
 		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n cert-manager", vars.CloudflareToken, vars.CloudflareEmail),
 		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n external-dns", vars.CloudflareToken, vars.CloudflareEmail),
+		"kubectl --kubeconfig /etc/kubernetes/admin.conf -n monitoring-system create secret generic etcd-client-cert --from-file=/etc/kubernetes/pki/etcd/ca.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.key",
 		"mkdir -p /home/supertylerc/.kube",
 		"cp -i /etc/kubernetes/admin.conf /home/supertylerc/.kube/config",
 		"chown supertylerc:supertylerc /home/supertylerc/.kube",
 		"chown supertylerc:supertylerc /home/supertylerc/.kube/config",
 		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get application -A | grep -v 'Synced.*Healthy' | grep -v NAME; do sleep 0.5; done",
-		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
+		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods --field-selector=status.phase!=Succeeded -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
 	}...)
 	switch vars.CNI {
 	case "cilium":
 		cmds = append(cmds, []string{
 			"kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart deploy/cilium-operator -n kube-system",
 			"kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart ds/cilium -n kube-system",
-			"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
+			"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods --field-selector=status.phase!=Succeeded -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
 		}...)
 	}
-	cmds = append(cmds, []string{
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf -n monitoring-system create secret generic etcd-client-cert --from-file=/etc/kubernetes/pki/etcd/ca.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.key",
-	}...)
 	return cmds
 }
 
