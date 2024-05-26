@@ -19,6 +19,13 @@ spec:
           metrics:
             serviceMonitor:
               enabled: true
+          persistence:
+            defaultClassReplicaCount: 1
+            defaultDataLocality: "best-effort"
+          defaultSettings:
+            storageMinimalAvailablePercentage: 15
+            storageReservedPercentageForDefaultDisk: 15
+            storageOverProvisioningPercentage: 200
     - repoURL: https://github.com/supertylerc/sre-portfolio.git
       path: k8s-lab/longhorn
       targetRevision: HEAD
