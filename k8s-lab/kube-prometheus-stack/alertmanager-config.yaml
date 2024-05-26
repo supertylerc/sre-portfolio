@@ -1,0 +1,26 @@
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  labels:
+    alertmanagerConfig: config
+  name: alertmanager-config
+  namespace: monitoring-system
+spec:
+  receivers:
+    - name: pushover
+      pushoverConfigs:
+        - token:
+            key: token
+            name: pushover-config
+          userKey:
+            key: userkey
+            name: pushover-config
+          priority: '{{ if eq .Status "firing" }}1{{ else }}0{{ end }}'
+  route:
+    groupBy:
+      - job
+    groupInterval: 5m
+    groupWait: 30s
+    receiver: pushover
+    repeatInterval: 24h

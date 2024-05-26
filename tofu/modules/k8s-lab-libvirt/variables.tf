@@ -69,3 +69,15 @@ variable "cni" {
   description = "Kubernetes CNI to use"
   default     = "cilium"
 }
+
+variable "pushover_token" {
+  type        = string
+  sensitive   = true
+  description = "PushOver API token for Alert Manager to use"
+}
+
+variable "pushover_key" {
+  type        = string
+  sensitive   = true
+  description = "User access key for PushOver Token"
+}
