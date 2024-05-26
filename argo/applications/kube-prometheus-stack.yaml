@@ -16,6 +16,7 @@ spec:
         valuesObject:
           prometheus:
             prometheusSpec:    
+              paused: false
               storageSpec: 
                 volumeClaimTemplate:
                   spec:
@@ -23,7 +24,8 @@ spec:
                     accessModes: ["ReadWriteOnce"]
                     resources:
                       requests:
-                        storage: 2Gi
+                        storage: 4Gi
+              secrets: ['etcd-client-cert']
               thanos:
                 objectStorageConfig:
                   existingSecret:
@@ -33,6 +35,13 @@ spec:
                 enabled: true
               thanosServiceMonitor:
                 enabled: true
+          alertmanager:
+            alertmanagerSpec:
+              alertmanagerConfigMatcherStrategy:
+                type: None
+          defaultRules:
+            rules:
+              kubeProxy: false
           grafana:
             sidecar:
               datasources:
@@ -47,6 +56,17 @@ spec:
                 isDefault: true
                 jsonData:
                   prometheusType: "Thanos"
+          kubeEtcd:
+            service:
+              port: "2379"
+              targetPort: "2379"
+            serviceMonitor:
+              scheme: https
+              insecureSkipVerify: false
+              serverName: localhost
+              caFile: /etc/prometheus/secrets/etcd-client-cert/ca.crt
+              certFile: /etc/prometheus/secrets/etcd-client-cert/healthcheck-client.crt
+              keyFile: /etc/prometheus/secrets/etcd-client-cert/healthcheck-client.key
     - repoURL: https://github.com/supertylerc/sre-portfolio.git
       path: k8s-lab/kube-prometheus-stack
       targetRevision: HEAD
