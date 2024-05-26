@@ -1,28 +1,29 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: dragonfly-operator
+  name: opentelemetry-operator
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io/background
 spec:
   project: default
   sources:
-    - path: charts/dragonfly-operator
-      repoURL: https://github.com/nujragan93/dragonfly-operator.git
-      targetRevision: feature/helmChart
+    # Operator
+    - chart: opentelemetry-operator
+      repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+      targetRevision: 0.60.*
       helm:
-        releaseName: dragonfly-operator
+        releaseName: opentelemetry-operator
         valuesObject:
-          crds:
-            install: true
+          manager:
+            collectorImage:
+              repository: "otel/opentelemetry-collector-contrib"
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: dragonfly-operator
+    namespace: monitoring-system
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - RespectIgnoreDifferences=true

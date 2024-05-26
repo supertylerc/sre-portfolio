@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: default
+  sources:
+    - chart: loki
+      repoURL: https://grafana.github.io/helm-charts
+      targetRevision: 6.6.*
+      helm:
+        releaseName: loki
+        valuesObject:
+          chunksCache:
+            enabled: false
+          resultsCache:
+            enabled: false
+          loki:
+            auth_enabled: false
+            storage:
+              bucketNames:
+                chunks: chunks
+                ruler: ruler
+                admin: admin
+              type: s3
+              s3:
+                endpoint: "http://10.0.42.1:7070/loki"
+                region: us-east-1
+                secretAccessKey: k8s-lab
+                accessKeyId: k8s-lab
+                s3ForcePathStyle: true
+                insecure: true
+            gateway:
+              enabled: false
+            monitoring:
+              dashboards:
+                enabled: true
+              serviceMonitor:
+                enabled: true
+                labels:
+                  prometheus: loki
+            schemaConfig:
+              configs:
+                - from: 2024-05-19
+                  object_store: s3
+                  store: tsdb
+                  schema: v13
+                  index:
+                    prefix: index_
+                    period: 24h
+    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+      path: k8s-lab/loki
+      targetRevision: HEAD
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
