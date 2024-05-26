@@ -88,9 +88,9 @@ func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
 			"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
 		}...)
 	}
-	cmds = append(cmds []string{
+	cmds = append(cmds, []string{
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf -n monitoring-system create secret generic etcd-client-cert --from-file=/etc/kubernetes/pki/etcd/ca.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.key",
-	}
+	}...)
 	return cmds
 }
 
