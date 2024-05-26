@@ -1,0 +1,20 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
+controllerManager:
+  extraArgs:
+    bind-address: "0.0.0.0"
+scheduler:
+  extraArgs:
+    bind-address: "0.0.0.0"
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock 
+skipPhases:
+  - addon/kube-proxy
+bootstrapTokens:
+  - token: "${join_token}"
+    description: "Bootstrap join token for the cluster"
+    ttl: "24h"

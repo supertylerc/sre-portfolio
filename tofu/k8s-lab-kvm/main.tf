@@ -48,6 +48,11 @@ locals {
     "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/cert-manager.yaml",
     "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/external-dns.yaml",
     "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/longhorn.yaml",
+    "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/kube-prometheus-stack.yaml",
+    "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/dragonfly-operator.yaml",
+    "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/loki.yaml",
+    "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/opentelemetry-operator.yaml",
+    "https://raw.githubusercontent.com/supertylerc/sre-portfolio/main/argo/applications/thanos.yaml",
   ]
 
 }
