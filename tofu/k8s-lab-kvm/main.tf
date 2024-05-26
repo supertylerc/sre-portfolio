@@ -11,6 +11,8 @@ module "lab" {
   users             = local.users
   argocd_domain     = local.argocd_domain
   argocd_apps       = local.argocd_apps
+  pushover_token    = var.pushover_token
+  pushover_key      = var.pushover_key
 }
 
 locals {
@@ -71,4 +73,16 @@ variable "hashed_password" {
   type        = string
   sensitive   = true
   description = "Hashed password for user"
+}
+
+variable "pushover_token" {
+  type        = string
+  sensitive   = true
+  description = "PushOver API token for Alert Manager to use"
+}
+
+variable "pushover_key" {
+  type        = string
+  sensitive   = true
+  description = "User access key for PushOver Token"
 }

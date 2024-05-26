@@ -14,6 +14,8 @@ type ControlPlaneRunCmdVars struct {
 	CloudflareToken string   `tf:"cloudflare_token"`
 	CloudflareEmail string   `tf:"cloudflare_email"`
 	CNI             string   `tf:"cni"`
+	PushoverToken   string   `tf:"pushover_token"`
+	PushoverKey     string   `tf:"pushover_key"`
 }
 
 func commonRunCmds() []string {
@@ -67,10 +69,12 @@ func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace gateway",
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace cert-manager",
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace external-dns",
+		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace monitoring-system",
 		"helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install argocd argo/argo-cd -f /tmp/values-argocd.yaml -n argocd",
 	}...)
 	cmds = append(cmds, argoCDApps(vars.ArgoCDApps)...)
 	cmds = append(cmds, []string{
+		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic -n monitoring-system pushover-config --from-literal=token=%s --from-literal=userkey=%s", vars.PushoverToken, vars.PushoverKey),
 		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n cert-manager", vars.CloudflareToken, vars.CloudflareEmail),
 		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n external-dns", vars.CloudflareToken, vars.CloudflareEmail),
 		"mkdir -p /home/supertylerc/.kube",
