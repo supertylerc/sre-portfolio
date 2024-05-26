@@ -48,7 +48,7 @@ func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
 		"snap install helm --classic",
 		"helm repo add argo https://argoproj.github.io/argo-helm",
 		"helm repo update",
-		fmt.Sprintf("kubeadm init --token=%s --skip-phases=addon/kube-proxy --cri-socket unix:///var/run/containerd/containerd.sock --v=5", vars.JoinToken),
+		fmt.Sprintf("kubeadm init --token=%s --skip-phases=addon/kube-proxy --cri-socket unix:///var/run/containerd/containerd.sock --v=5 --config=/tmp/kubeadm.yaml", vars.JoinToken),
 		"curl -Lsk -o /tmp/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64",
 		"install /tmp/argocd /usr/bin",
 	}...)
@@ -87,6 +87,9 @@ func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
 			"kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart ds/cilium -n kube-system",
 			"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
 		}...)
+	}
+	cmds = append(cmds []string{
+		"kubectl --kubeconfig /etc/kubernetes/admin.conf -n monitoring-system create secret generic etcd-client-cert --from-file=/etc/kubernetes/pki/etcd/ca.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.key",
 	}
 	return cmds
 }

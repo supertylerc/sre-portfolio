@@ -89,6 +89,10 @@ locals {
         path    = "/tmp/values-argocd.yaml"
         content = templatefile("${path.module}/configs/argocd.values.yaml.tftpl", { argocd_domain = var.argocd_domain })
       },
+      {
+        path    = "/tmp/kubeadm.yaml"
+        content = file("${path.module}/configs/kubeadm.yaml")
+      },
     ]
     groups = ["docker"]
     power_state = {
