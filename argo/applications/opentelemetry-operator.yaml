@@ -18,6 +18,9 @@ spec:
           manager:
             collectorImage:
               repository: "otel/opentelemetry-collector-contrib"
+    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+      path: k8s-lab/otel-config
+      targetRevision: HEAD
   destination:
     server: "https://kubernetes.default.svc"
     namespace: monitoring-system
