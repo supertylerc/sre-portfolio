@@ -94,6 +94,10 @@ locals {
         path    = "/tmp/kubeadm.yaml"
         content = templatefile("${path.module}/configs/kubeadm.yaml.tftpl", { join_token = var.join_token })
       },
+      {
+        path    = "/etc/apparmor.d/usr.bin.nsenter"
+        content = file("${path.module}/configs/usr.bin.nsenter.apparmor")
+      },
     ]
     groups = ["docker"]
     power_state = {
