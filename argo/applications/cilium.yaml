@@ -14,6 +14,15 @@ spec:
       helm:
         releaseName: cilium
         valuesObject:
+          podAnnotations:
+            "container.apparmor.security.beta.kubernetes.io/mount-cgroup": "localhost/cilium"
+            "container.apparmor.security.beta.kubernetes.io/apply-sysctl-overwrites": "localhost/cilium"
+            "container.apparmor.security.beta.kubernetes.io/cilium-agent": "localhost/cilium"
+            "container.apparmor.security.beta.kubernetes.io/clean-cilium-state": "localhost/cilium"
+          podSecurityContext:
+            appArmorProfile:
+              type: Localhost
+              localhostProfile: cilium
           kubeProxyReplacement: strict
           # Necessary when using kube-proxy replacement
           k8sServiceHost: "10.0.42.10"

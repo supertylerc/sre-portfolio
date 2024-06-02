@@ -1,0 +1,230 @@
+# Last Modified: Sun Jun  2 22:24:24 2024
+include <tunables/global>
+
+profile cilium flags=(attach_disconnected) {
+  include <abstractions/base>
+
+  capability chown,
+  capability net_admin,
+  capability net_raw,
+  capability sys_admin,
+
+  /usr/bin/cilium-envoy cx,
+  /usr/bin/cilium-envoy-starter cx,
+  /usr/bin/cp cx,
+  /usr/bin/grep cx,
+  /usr/bin/ip cx,
+  /usr/bin/nsenter cx,
+  /usr/bin/rm cx,
+  /usr/local/bin/bpftool cx,
+  /usr/local/bin/clang cx,
+  /usr/sbin/iptables-wrapper cx,
+  /usr/sbin/xtables-nft-multi cx,
+  owner / r,
+  owner /cni-uninstall.sh r,
+  owner /dev/tty rw,
+  owner /etc/group r,
+  owner /etc/ld.so.cache r,
+  owner /etc/nsswitch.conf r,
+  owner /etc/passwd r,
+  owner /etc/protocols r,
+  owner /host/etc/cni/net.d/ r,
+  owner /host/etc/cni/net.d/*cilium* r,
+  owner /host/etc/cni/net.d/*cilium* w,
+  owner /host/proc/sys/kernel/timer_migration rw,
+  owner /host/proc/sys/kernel/unprivileged_bpf_disabled rw,
+  owner /host/proc/sys/net/core/bpf_jit_enable rw,
+  owner /host/proc/sys/net/ipv4/conf/all/forwarding rw,
+  owner /host/proc/sys/net/ipv4/conf/all/rp_filter rw,
+  owner /host/proc/sys/net/ipv4/conf/cilium*/* rw,
+  owner /host/proc/sys/net/ipv4/fib_multipath_use_neigh rw,
+  owner /host/proc/sys/net/ipv4/ip_forward rw,
+  owner /host/proc/sys/net/ipv4/ip_local_port_range r,
+  owner /host/proc/sys/net/ipv6/conf/all/forwarding r,
+  owner /init-container.sh r,
+  owner /opt/cni/bin/cilium-mount mr,
+  owner /proc/*/stat r,
+  owner /proc/1/limits r,
+  owner /proc/1/mountinfo r,
+  owner /proc/1/net/tcp r,
+  owner /proc/1/net/tcp6 r,
+  owner /proc/1/net/udp r,
+  owner /proc/1/net/udp6 r,
+  owner /proc/modules r,
+  owner /proc/schedstat r,
+  owner /proc/sys/kernel/random/boot_id r,
+  owner /proc/sys/net/core/somaxconn r,
+  owner /root/.config/ w,
+  owner /root/.config/gops/ w,
+  owner /root/.config/gops/1 w,
+  owner /run/cilium/ rw,
+  owner /run/cilium/* rw,
+  owner /run/cilium/** k,
+  owner /run/cilium/** rw,
+  owner /run/cilium/**/ rw,
+  owner /run/secrets/kubernetes.io/serviceaccount/*/ca.crt r,
+  owner /run/secrets/kubernetes.io/serviceaccount/*/token r,
+  owner /sys/fs/bpf/cilium/ w,
+  owner /sys/fs/bpf/cilium/* w,
+  owner /sys/fs/bpf/cilium/** w,
+  owner /sys/fs/bpf/cilium/**/ r,
+  owner /sys/fs/bpf/cilium/**/ w,
+  owner /sys/fs/bpf/tc/globals/cilium* r,
+  owner /sys/fs/bpf/tc/globals/cilium* w,
+  owner /sys/module/ipv6/parameters/disable r,
+  owner /tmp/*cilium* w,
+  owner /tmp/cilium/config-map/ r,
+  owner /tmp/cilium/config-map/* r,
+  owner /tmp/cilium/config-map/** r,
+  owner /tmp/cilium/config-map/**/ r,
+  owner /tmp/cilium/config-map/*/* r,
+  owner /usr/bin/cilium-agent r,
+  owner /usr/bin/grep r,
+  owner /usr/bin/ln r,
+  owner /usr/bin/rm r,
+  owner /usr/sbin/iptables-wrapper r,
+  owner /var/lib/cilium/ r,
+  owner /var/lib/cilium/** rw,
+  owner /var/lib/cilium/**/ r,
+  owner /var/lib/cilium/*/ r,
+
+
+  profile /usr/bin/cilium-envoy flags=(complain) {
+    include <abstractions/base>
+
+    /usr/bin/cilium-envoy r,
+
+  }
+
+  profile /usr/bin/cilium-envoy-starter flags=(complain) {
+    include <abstractions/base>
+
+    capability net_raw,
+
+    network unix dgram,
+
+    /usr/bin/cilium-envoy mrix,
+    /usr/bin/cilium-envoy-starter r,
+    owner /dev/shm/envoy_shared_memory_0 rw,
+    owner /proc/*/fdinfo/* r,
+    owner /proc/*/task/*/comm rw,
+    owner /run/cilium/envoy/** rw,
+
+  }
+
+  profile /usr/bin/cp flags=(complain) {
+    include <abstractions/base>
+
+    /usr/bin/cp mr,
+    owner /hostbin/cilium-mount rw,
+    owner /hostbin/cilium-sysctlfix rw,
+    owner /usr/bin/cilium-sysctlfix r,
+
+  }
+
+  profile /usr/bin/grep flags=(complain) {
+    include <abstractions/base>
+
+    /usr/bin/grep mr,
+
+  }
+
+  profile /usr/bin/ip flags=(complain) {
+    include <abstractions/base>
+
+    capability sys_admin,
+
+    mount options=(rshared, rw) -> /run/netns/,
+
+    /usr/bin/ip mr,
+    owner /run/netns/ rwk,
+    owner /run/netns/cilium-health rw,
+
+  }
+
+  profile /usr/bin/nsenter flags=(complain attach_disconnected) {
+    include <abstractions/base>
+
+    capability sys_admin,
+    capability sys_chroot,
+    capability sys_ptrace,
+
+    ptrace read peer=unconfined,
+
+    /opt/cni/bin/cilium-mount mrix,
+    /opt/cni/bin/cilium-sysctlfix mrix,
+    /usr/bin/nsenter mr,
+    owner / r,
+    owner /etc/sysctl.d/*cilium.conf rw,
+
+  }
+
+  profile /usr/bin/rm flags=(complain) {
+    include <abstractions/base>
+
+    /usr/bin/rm mr,
+    owner /hostbin/cilium-mount w,
+    owner /hostbin/cilium-sysctlfix w,
+
+  }
+
+  profile /usr/local/bin/bpftool flags=(complain) {
+    include <abstractions/base>
+
+    capability net_admin,
+    capability sys_admin,
+
+    owner /proc/*/fdinfo/3 r,
+    owner /proc/sys/kernel/unprivileged_bpf_disabled r,
+    owner /proc/sys/net/core/bpf_jit_enable r,
+    owner /proc/sys/net/core/bpf_jit_harden r,
+    owner /proc/sys/net/core/bpf_jit_kallsyms r,
+    owner /proc/sys/net/core/bpf_jit_limit r,
+    owner /proc/version_signature r,
+    owner /usr/local/bin/bpftool r,
+
+  }
+
+  profile /usr/local/bin/clang flags=(complain) {
+    include <abstractions/base>
+
+    owner /etc/debian_version r,
+    owner /etc/lsb-release r,
+    owner /run/cilium/** rw,
+    owner /run/cilium/state/bpf_sock.o rw,
+    owner /usr/local/bin/clang r,
+    owner /var/lib/cilium/** r,
+
+  }
+
+  profile /usr/sbin/iptables-wrapper flags=(complain) {
+    include <abstractions/base>
+
+    /usr/bin/grep mrix,
+    /usr/bin/ln mrix,
+    /usr/bin/rm mrix,
+    /usr/bin/wc mrix,
+    /usr/sbin/xtables-nft-multi px,
+    owner /usr/bin/dash r,
+    owner /usr/sbin/ip6tables w,
+    owner /usr/sbin/ip6tables-restore w,
+    owner /usr/sbin/ip6tables-save w,
+    owner /usr/sbin/iptables w,
+    owner /usr/sbin/iptables-restore w,
+    owner /usr/sbin/iptables-save w,
+    owner /usr/sbin/iptables-wrapper r,
+
+  }
+
+  profile /usr/sbin/xtables-nft-multi flags=(complain) {
+    include <abstractions/base>
+
+    capability net_admin,
+
+    /usr/sbin/xtables-nft-multi mr,
+    owner /etc/gai.conf r,
+    owner /proc/*/net/ip6_tables_names r,
+    owner /proc/*/net/ip_tables_names r,
+
+  }
+}
