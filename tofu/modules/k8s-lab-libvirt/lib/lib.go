@@ -81,7 +81,7 @@ func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
 		"cp -i /etc/kubernetes/admin.conf /home/supertylerc/.kube/config",
 		"chown supertylerc:supertylerc /home/supertylerc/.kube",
 		"chown supertylerc:supertylerc /home/supertylerc/.kube/config",
-		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get application -A | grep -v 'Synced.*Healthy' | grep -v NAME | grep -v loki-read; do sleep 0.5; done",
+		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get application -A | grep -v 'Synced.*Healthy' | grep -v NAME | grep -v loki; do sleep 0.5; done",
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf get deploy -n monitoring-system loki-read -o json | jq -er '.status.unavailableReplicas>0' && kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart deploy -n monitoring-system loki-read",
 		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods --field-selector=status.phase!=Succeeded -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
 	}...)
