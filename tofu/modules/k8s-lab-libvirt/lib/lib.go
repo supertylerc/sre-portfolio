@@ -60,6 +60,7 @@ func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
 			"helm repo add cilium https://helm.cilium.io/",
 			"helm repo update",
 			"helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install --namespace kube-system cilium cilium/cilium -f /tmp/values-cilium.yaml --set k8sServiceHost=$(ip --json -4 a | jq -r '.[] | select(.ifname!=\"lo\") | .addr_info[0].local')",
+			"apparmor_parse -r /etc/apparmor.d/cilium",
 		}
 	}
 	cmds = append(cmds, cniCmds...)
