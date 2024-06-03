@@ -1,0 +1,74 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tempo
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: default
+  sources:
+    - chart: tempo-distributed
+      repoURL: https://grafana.github.io/helm-charts
+      targetRevision: 1.10.*
+      helm:
+        releaseName: tempo
+        valuesObject:
+          global:
+            clusterDomain: cluster.local
+          memcached:
+            enabled: false
+          cache:
+            caches:
+              - redis:
+                  endpoint: tempo-redis:6379
+                roles:
+                  - parquet-footer
+                  - bloom
+                  - frontend-search
+          gateway:
+            enabled: false
+          minio:
+            enabled: false
+          traces:
+            otlp:
+              http:
+                enabled: true
+              grpc:
+                enabled: true
+            zipkin:
+              enabled: false
+            jaeger:
+              thriftHttp:
+                enabled: false
+            opencensus:
+              enabled: false
+          storage:
+            trace:
+              backend: s3
+              access_key: k8s_lab
+              secret_key: k8s_lab
+              bucket: tempo
+              insecure: true
+              endpoint: "http://10.0.42.1:7070/"
+            admin:
+              backend: s3
+              access_key: k8s_lab
+              secret_key: k8s_lab
+              bucket: tempo
+              insecure: true
+              endpoint: "http://10.0.42.1:7070/"
+    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+      path: k8s-lab/tempo
+      targetRevision: HEAD
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
