@@ -56,6 +56,11 @@ spec:
                 isDefault: true
                 jsonData:
                   prometheusType: "Thanos"
+              - name: loki
+                type: loki
+                url: "http://loki-read:3100"
+                uid: loki
+                isDefault: false
           kubeEtcd:
             service:
               port: "2379"
