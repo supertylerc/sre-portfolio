@@ -69,21 +69,21 @@ func ControlPlaneRunCmds(vars ControlPlaneRunCmdVars) []string {
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace gateway",
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace cert-manager",
 		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace external-dns",
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace monitoring-system",
+		"kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace monitoring",
 		"helm upgrade --wait --kubeconfig /etc/kubernetes/admin.conf --install argocd argo/argo-cd -f /tmp/values-argocd.yaml -n argocd",
 	}...)
 	cmds = append(cmds, argoCDApps(vars.ArgoCDApps)...)
 	cmds = append(cmds, []string{
-		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic -n monitoring-system pushover-config --from-literal=token=%s --from-literal=userkey=%s", vars.PushoverToken, vars.PushoverKey),
+		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic -n monitoring pushover-config --from-literal=token=%s --from-literal=userkey=%s", vars.PushoverToken, vars.PushoverKey),
 		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n cert-manager", vars.CloudflareToken, vars.CloudflareEmail),
 		fmt.Sprintf("kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic cloudflare-api-token --from-literal=token=%s --from-literal=email=%s -n external-dns", vars.CloudflareToken, vars.CloudflareEmail),
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf -n monitoring-system create secret generic etcd-client-cert --from-file=/etc/kubernetes/pki/etcd/ca.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.key",
+		"kubectl --kubeconfig /etc/kubernetes/admin.conf -n monitoring create secret generic etcd-client-cert --from-file=/etc/kubernetes/pki/etcd/ca.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.crt --from-file=/etc/kubernetes/pki/etcd/healthcheck-client.key",
 		"mkdir -p /home/supertylerc/.kube",
 		"cp -i /etc/kubernetes/admin.conf /home/supertylerc/.kube/config",
 		"chown supertylerc:supertylerc /home/supertylerc/.kube",
 		"chown supertylerc:supertylerc /home/supertylerc/.kube/config",
 		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get application -A | grep -v 'Synced.*Healthy' | grep -v NAME | grep -v loki; do sleep 0.5; done",
-		"kubectl --kubeconfig /etc/kubernetes/admin.conf get deploy -n monitoring-system loki-read -o json | jq -er '.status.unavailableReplicas>0' && kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart deploy -n monitoring-system loki-read",
+		"kubectl --kubeconfig /etc/kubernetes/admin.conf get deploy -n monitoring loki-read -o json | jq -er '.status.unavailableReplicas>0' && kubectl --kubeconfig /etc/kubernetes/admin.conf rollout restart deploy -n monitoring loki-read",
 		"while kubectl --kubeconfig /etc/kubernetes/admin.conf get -A pods --field-selector=status.phase!=Succeeded -o custom-columns=NAMESPACE:metadata.namespace,POD:metadata.name,PodIP:status.podIP,READY-true:status.containerStatuses[*].ready | grep -v true; do sleep 0.5; done",
 	}...)
 	switch vars.CNI {

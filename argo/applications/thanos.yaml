@@ -23,7 +23,7 @@ spec:
               create: true
             dnsDiscovery:
               sidecarsService: "prometheus-operated"
-              sidecarsNamespace: "monitoring-system"
+              sidecarsNamespace: "monitoring"
           queryFrontend:
             replicaCount: 3
             pdb:
@@ -74,7 +74,7 @@ spec:
         - .spec.volumeClaimTemplates[].apiVersion
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring-system
+    namespace: monitoring
   syncPolicy:
     automated:
       prune: true

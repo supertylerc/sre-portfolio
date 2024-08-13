@@ -2,7 +2,7 @@ apiVersion: opentelemetry.io/v1beta1
 kind: OpenTelemetryCollector
 metadata:
   name: logging
-  namespace: monitoring-system
+  namespace: monitoring
 spec:
   mode: daemonset
   volumeMounts:
@@ -35,27 +35,27 @@ spec:
           # Parse CRI-O format
           - type: regex_parser
             id: parser-crio
-            regex: '^(?P<time>[^ Z]+) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$'
+            regex: "^(?P<time>[^ Z]+) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$"
             output: extract_metadata_from_filepath
             timestamp:
               parse_from: attributes.time
               layout_type: gotime
-              layout: '2006-01-02T15:04:05.999999999Z07:00'
+              layout: "2006-01-02T15:04:05.999999999Z07:00"
           # Parse CRI-Containerd format
           - type: regex_parser
             id: parser-containerd
-            regex: '^(?P<time>[^ ^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$'
+            regex: "^(?P<time>[^ ^Z]+Z) (?P<stream>stdout|stderr) (?P<logtag>[^ ]*) ?(?P<log>.*)$"
             output: extract_metadata_from_filepath
             timestamp:
               parse_from: attributes.time
-              layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+              layout: "%Y-%m-%dT%H:%M:%S.%LZ"
           # Parse Docker format
           - type: json_parser
             id: parser-docker
             output: extract_metadata_from_filepath
             timestamp:
               parse_from: attributes.time
-              layout: '%Y-%m-%dT%H:%M:%S.%LZ'
+              layout: "%Y-%m-%dT%H:%M:%S.%LZ"
           - type: move
             from: attributes.log
             to: body
@@ -82,7 +82,7 @@ spec:
             to: resource["pod"]
           - type: add
             field: resource["cluster"]
-            value: 'your-cluster-name' # Set your cluster name here
+            value: "your-cluster-name" # Set your cluster name here
     processors:
       resource:
         attributes:
@@ -96,15 +96,15 @@ spec:
       debug:
         verbosity: detailed
       loki:
-        endpoint: "http://loki-write.monitoring-system:3100/loki/api/v1/push"
+        endpoint: "http://loki-write.monitoring:3100/loki/api/v1/push"
         tls:
           insecure: true
         default_labels_enabled:
           exporter: true
-          job: true   
+          job: true
     service:
       pipelines:
         logs:
           receivers: [filelog]
           processors: [resource]
-          exporters: [loki]  
+          exporters: [loki]

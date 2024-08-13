@@ -5,7 +5,7 @@ metadata:
   labels:
     alertmanagerConfig: config
   name: alertmanager-config
-  namespace: monitoring-system
+  namespace: monitoring
 spec:
   receivers:
     - name: pushover

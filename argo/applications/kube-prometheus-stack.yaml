@@ -10,7 +10,7 @@ spec:
   sources:
     - chart: kube-prometheus-stack
       repoURL: https://prometheus-community.github.io/helm-charts
-      targetRevision: 58.*
+      targetRevision: 61.*
       helm:
         releaseName: kube-prometheus-stack
         valuesObject:
@@ -77,7 +77,7 @@ spec:
       targetRevision: bosgame
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring-system
+    namespace: monitoring
   syncPolicy:
     automated:
       prune: true

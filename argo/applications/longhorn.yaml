@@ -20,7 +20,7 @@ spec:
             serviceMonitor:
               enabled: true
           persistence:
-            defaultClassReplicaCount: 1
+            defaultClassReplicaCount: 0
             defaultDataLocality: "best-effort"
           defaultSettings:
             storageMinimalAvailablePercentage: 15

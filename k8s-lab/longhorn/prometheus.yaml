@@ -2,15 +2,15 @@ apiVersion: monitoring.coreos.com/v1
 kind: Prometheus
 metadata:
   name: longhorn-prometheus
-  namespace: monitoring-system
+  namespace: monitoring
 spec:
   alerting:
     alertmanagers:
-    - apiVersion: v2
-      name: kube-prometheus-stack-alertmanager
-      namespace: monitoring-system
-      pathPrefix: /
-      port: http-web
+      - apiVersion: v2
+        name: kube-prometheus-stack-alertmanager
+        namespace: monitoring
+        pathPrefix: /
+        port: http-web
   externalUrl: "http://longhorn-prometheus.kube-system:9090"
   podMonitorNamespaceSelector: {}
   podMonitorSelector:
@@ -45,7 +45,7 @@ spec:
     volumeClaimTemplate:
       spec:
         accessModes:
-        - ReadWriteOnce
+          - ReadWriteOnce
         resources:
           requests:
             storage: 2Gi

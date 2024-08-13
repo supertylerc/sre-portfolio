@@ -9,13 +9,17 @@ spec:
   project: default
   sources:
     - path: charts/dragonfly-operator
-      repoURL: https://github.com/nujragan93/dragonfly-operator.git
+      repoURL: https://github.com/dragonflydb/dragonfly-operator.git
       targetRevision: feature/helmChart
       helm:
         releaseName: dragonfly-operator
         valuesObject:
           crds:
-            install: true
+            keep: false
+          serviceMonitor:
+            enabled: true
+          grafanaDashboard:
+            enabled: true
   destination:
     server: "https://kubernetes.default.svc"
     namespace: dragonfly-operator
