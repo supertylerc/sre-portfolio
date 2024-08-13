@@ -10,22 +10,22 @@ spec:
   gatewayClassName: cilium
   infrastructure:
     annotations:
-      io.cilium/lb-ipam-ips: "10.0.42.52"
+      io.cilium/lb-ipam-ips: "192.168.30.241"
   listeners:
-  - hostname: "*.local.tylerc.me"
-    name: http
-    port: 80
-    protocol: HTTP
-    allowedRoutes:
-      namespaces:
-        from: All
-  - hostname: "*.local.tylerc.me"
-    name: https
-    port: 443
-    protocol: HTTPS
-    tls:
-      certificateRefs:
-        - name: local-tylerc-me-wildcard
-    allowedRoutes:
-      namespaces:
-        from: All
+    - hostname: "*.dev.tylerc.me"
+      name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All
+    - hostname: "*.dev.tylerc.me"
+      name: https
+      port: 443
+      protocol: HTTPS
+      tls:
+        certificateRefs:
+          - name: dev-tylerc-me-wildcard
+      allowedRoutes:
+        namespaces:
+          from: All

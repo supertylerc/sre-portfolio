@@ -15,9 +15,9 @@ spec:
         releaseName: kube-prometheus-stack
         valuesObject:
           prometheus:
-            prometheusSpec:    
+            prometheusSpec:
               paused: false
-              storageSpec: 
+              storageSpec:
                 volumeClaimTemplate:
                   spec:
                     storageClassName: longhorn
@@ -25,7 +25,7 @@ spec:
                     resources:
                       requests:
                         storage: 4Gi
-              secrets: ['etcd-client-cert']
+              secrets: ["etcd-client-cert"]
               thanos:
                 objectStorageConfig:
                   existingSecret:
@@ -72,9 +72,9 @@ spec:
               caFile: /etc/prometheus/secrets/etcd-client-cert/ca.crt
               certFile: /etc/prometheus/secrets/etcd-client-cert/healthcheck-client.crt
               keyFile: /etc/prometheus/secrets/etcd-client-cert/healthcheck-client.key
-    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+    - repoURL: https://github.com/supertylerc/sre-portfolio
       path: k8s-lab/kube-prometheus-stack
-      targetRevision: HEAD
+      targetRevision: bosgame
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring-system

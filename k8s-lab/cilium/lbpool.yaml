@@ -5,6 +5,5 @@ metadata:
   name: "lab"
 spec:
   blocks:
-  - start: "10.0.42.50"
-    stop: "10.0.42.99"
-
+    - start: "192.168.30.240"
+      stop: "192.168.30.254"

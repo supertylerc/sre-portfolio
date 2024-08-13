@@ -10,7 +10,7 @@ spec:
   sources:
     - chart: cilium
       repoURL: https://helm.cilium.io/
-      targetRevision: 1.15.*
+      targetRevision: 1.16.*
       helm:
         releaseName: cilium
         valuesObject:
@@ -22,9 +22,12 @@ spec:
           podSecurityContext:
             appArmorProfile:
               type: Unconfined
-          kubeProxyReplacement: strict
+          operator:
+            replicas: 1
+          kubeProxyReplacementHealthzBindAddr: "0.0.0.0:10256"
+          kubeProxyReplacement: true
           # Necessary when using kube-proxy replacement
-          k8sServiceHost: "10.0.42.10"
+          k8sServiceHost: "192.168.30.179"
           k8sServicePort: 6443
           dashboards:
             enabled: true
@@ -86,9 +89,9 @@ spec:
             enabled: true
           l2announcements:
             enabled: true
-    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+    - repoURL: https://github.com/supertylerc/sre-portfolio
       path: k8s-lab/cilium
-      targetRevision: HEAD
+      targetRevision: bosgame
   destination:
     server: "https://kubernetes.default.svc"
     namespace: kube-system

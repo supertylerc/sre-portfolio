@@ -63,9 +63,9 @@ spec:
               enabled: true
               labels:
                 prometheus: thanos
-    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+    - repoURL: https://github.com/supertylerc/sre-portfolio
       path: k8s-lab/thanos
-      targetRevision: HEAD
+      targetRevision: bosgame
   ignoreDifferences:
     - group: apps
       kind: StatefulSet

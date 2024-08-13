@@ -6,15 +6,15 @@ metadata:
   namespace: argocd
 spec:
   hostnames:
-  - argocd.local.tylerc.me
+    - argocd.dev.tylerc.me
   parentRefs:
-  - name: cilium-gateway
-    namespace: gateway
+    - name: cilium-gateway
+      namespace: gateway
   rules:
-  - backendRefs:
-    - name: argocd-server
-      port: 80
-    matches:
-    - path:
-        type: PathPrefix
-        value: /
+    - backendRefs:
+        - name: argocd-server
+          port: 80
+      matches:
+        - path:
+            type: PathPrefix
+            value: /

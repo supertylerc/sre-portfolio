@@ -10,7 +10,7 @@ spec:
   sources:
     - chart: cert-manager
       repoURL: https://charts.jetstack.io
-      targetRevision: 1.14.*
+      targetRevision: 1.15.*
       helm:
         releaseName: cert-manager
         valuesObject:
@@ -22,9 +22,9 @@ spec:
             serviceMonitor:
               enabled: true
               prometheusInstance: cert-manager
-    - repoURL: https://github.com/supertylerc/sre-portfolio.git
+    - repoURL: https://github.com/supertylerc/sre-portfolio
       path: k8s-lab/cert-manager
-      targetRevision: HEAD
+      targetRevision: bosgame
   destination:
     server: "https://kubernetes.default.svc"
     namespace: cert-manager
